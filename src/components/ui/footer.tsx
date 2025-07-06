@@ -5,7 +5,6 @@ import {
     TwitterLogoIcon,
     FacebookLogoIcon,
     YoutubeLogoIcon,
-    HeartIcon,
 } from "@phosphor-icons/react";
 import { Link } from "wouter";
 
