@@ -298,7 +298,7 @@ export default function Contact() {
                             </div>
 
                             {/* Additional Info */}
-                            <div className="space-y-6">
+                            <div className="space-y-6 max-sm:px-2">
                                 <div>
                                     <h3 className="text-xl font-bold text-foreground mb-3">
                                         Why Choose FluxOasis?

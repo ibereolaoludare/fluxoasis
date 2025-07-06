@@ -13,7 +13,7 @@ export default function NotFound() {
     return (
         <>
             <Header />
-            <main className="min-h-screen bg-background flex items-center justify-center px-4 sm:px-8 lg:px-16 xl:px-32">
+            <main className="py-8 bg-background flex items-center justify-center px-4 sm:px-8 lg:px-16 xl:px-32">
                 <div className="max-w-4xl mx-auto text-center">
                     {/* 404 Number */}
                     <motion.div
