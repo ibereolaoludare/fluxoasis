@@ -1,0 +1,594 @@
+import Header from "@/components/ui/header";
+import Footer from "@/components/ui/footer";
+import { motion } from "motion/react";
+import {
+    ArrowRightIcon,
+    StarIcon,
+    ClockIcon,
+    ShieldIcon,
+    ShoppingCartIcon,
+    TruckIcon,
+    SnowflakeIcon,
+    LockIcon,
+} from "@phosphor-icons/react";
+import { Button } from "@/components/ui/button";
+import ProductCard from "@/components/ui/product-card";
+
+export default function Home() {
+    const drinkImages = [
+        {
+            src: "/images/coke.png",
+            alt: "Coca Cola",
+            delay: 0,
+            position: "top-60 left-10",
+        },
+        {
+            src: "/images/fanta.png",
+            alt: "Fanta",
+            delay: 0.5,
+            position: "top-40 right-20",
+        },
+        {
+            src: "/images/pepsi.png",
+            alt: "Pepsi",
+            delay: 1,
+            position: "bottom-40 left-1/6",
+        },
+        {
+            src: "/images/sprite.png",
+            alt: "Sprite",
+            delay: 1,
+            position: "bottom-20 right-1/6",
+        },
+    ];
+
+    const features = [
+        {
+            icon: ClockIcon,
+            title: "5 Min Delivery",
+            description: "Lightning fast delivery",
+        },
+        {
+            icon: ShieldIcon,
+            title: "100% Fresh",
+            description: "Always chilled & fresh",
+        },
+        {
+            icon: StarIcon,
+            title: "4.9 Rating",
+            description: "From 10k+ customers",
+        },
+    ];
+
+    const categories = [
+        {
+            name: "Soft Drinks",
+            image: "https://images.unsplash.com/photo-1527960471264-932f39eb5846?q=80&w=2340&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            count: "50+",
+            color: "from-red-500 to-red-600",
+            bgColor: "bg-red-50",
+        },
+        {
+            name: "Energy",
+            image: "https://images.unsplash.com/photo-1622543925917-763c34d1a86e?q=80&w=987&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            count: "25+",
+            color: "from-yellow-500 to-orange-500",
+            bgColor: "bg-yellow-50",
+        },
+        {
+            name: "Juice",
+            image: "https://plus.unsplash.com/premium_photo-1667543228378-ec4478ab2845?q=80&w=2344&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            count: "30+",
+            color: "from-orange-500 to-pink-500",
+            bgColor: "bg-orange-50",
+        },
+        {
+            name: "Water",
+            image: "https://images.unsplash.com/photo-1616118132534-381148898bb4?q=80&w=1364&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            count: "15+",
+            color: "from-blue-500 to-cyan-500",
+            bgColor: "bg-blue-50",
+        },
+    ];
+
+    const featuredProducts = [
+        {
+            id: 1,
+            name: "Coca Cola Classic",
+            price: 2.99,
+            image: "https://images.unsplash.com/photo-1527960471264-932f39eb5846?q=80&w=2340&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            rating: 4.8,
+            reviews: 124,
+        },
+        {
+            id: 2,
+            name: "Pepsi Max",
+            price: 2.49,
+            image: "https://images.unsplash.com/photo-1622543925917-763c34d1a86e?q=80&w=987&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            rating: 4.6,
+            reviews: 89,
+        },
+        {
+            id: 3,
+            name: "Fanta Orange",
+            price: 2.79,
+            image: "https://plus.unsplash.com/premium_photo-1667543228378-ec4478ab2845?q=80&w=2344&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            rating: 4.7,
+            reviews: 156,
+        },
+        {
+            id: 4,
+            name: "Sprite Lemon",
+            price: 2.59,
+            image: "https://images.unsplash.com/photo-1616118132534-381148898bb4?q=80&w=1364&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            rating: 4.5,
+            reviews: 67,
+        },
+        {
+            id: 5,
+            name: "Red Bull Energy",
+            price: 3.99,
+            image: "https://images.unsplash.com/photo-1622543925917-763c34d1a86e?q=80&w=987&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            rating: 4.9,
+            reviews: 203,
+        },
+        {
+            id: 6,
+            name: "Monster Energy",
+            price: 3.49,
+            image: "https://images.unsplash.com/photo-1527960471264-932f39eb5846?q=80&w=2340&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            rating: 4.7,
+            reviews: 178,
+        },
+    ];
+
+    const whyChooseUs = [
+        {
+            icon: TruckIcon,
+            title: "Fast Delivery",
+            description: "Get your drinks delivered in minutes, not hours",
+        },
+        {
+            icon: ShoppingCartIcon,
+            title: "Easy Checkout",
+            description: "Simple, secure, and hassle-free ordering process",
+        },
+        {
+            icon: LockIcon,
+            title: "Secure Payments",
+            description: "Your payment information is always protected",
+        },
+    ];
+
+    return (
+        <>
+            <Header />
+            <main className="flex flex-col justify-between w-full">
+                {/* Hero Section */}
+                <section className="relative min-h-screen flex items-center justify-center px-4 sm:px-8 lg:px-16 xl:px-32 pt-16 sm:pt-20">
+                    {/* Background Elements */}
+                    <div className="absolute inset-0 overflow-hidden">
+                        <motion.div
+                            className="absolute top-20 left-10 w-32 h-32 bg-primary/10 rounded-full blur-3xl"
+                            animate={{
+                                scale: [1, 1.2, 1],
+                                opacity: [0.3, 0.6, 0.3],
+                            }}
+                            transition={{
+                                duration: 4,
+                                repeat: Infinity,
+                                ease: "easeInOut",
+                            }}
+                        />
+                        <motion.div
+                            className="absolute top-40 right-20 w-24 h-24 bg-accent/20 rounded-full blur-2xl"
+                            animate={{
+                                scale: [1.2, 1, 1.2],
+                                opacity: [0.4, 0.8, 0.4],
+                            }}
+                            transition={{
+                                duration: 3,
+                                repeat: Infinity,
+                                ease: "easeInOut",
+                                delay: 1,
+                            }}
+                        />
+                        <motion.div
+                            className="absolute bottom-40 left-1/4 w-40 h-40 bg-primary/5 rounded-full blur-3xl"
+                            animate={{
+                                scale: [1, 1.3, 1],
+                                opacity: [0.2, 0.5, 0.2],
+                            }}
+                            transition={{
+                                duration: 5,
+                                repeat: Infinity,
+                                ease: "easeInOut",
+                                delay: 2,
+                            }}
+                        />
+
+                        {/* Additional background elements */}
+                        <motion.div
+                            className="absolute top-1/3 left-1/2 w-16 h-16 bg-accent/30 rounded-full blur-xl"
+                            animate={{
+                                scale: [1, 1.5, 1],
+                                opacity: [0.2, 0.6, 0.2],
+                            }}
+                            transition={{
+                                duration: 4,
+                                repeat: Infinity,
+                                ease: "easeInOut",
+                                delay: 0.5,
+                            }}
+                        />
+                        <motion.div
+                            className="absolute bottom-1/3 right-1/4 w-20 h-20 bg-primary/20 rounded-full blur-2xl"
+                            animate={{
+                                scale: [1.5, 1, 1.5],
+                                opacity: [0.3, 0.7, 0.3],
+                            }}
+                            transition={{
+                                duration: 3.5,
+                                repeat: Infinity,
+                                ease: "easeInOut",
+                                delay: 1.5,
+                            }}
+                        />
+                    </div>
+
+                    {/* Floating Drink Images */}
+                    {drinkImages.map((drink, index) => (
+                        <motion.div
+                            key={index}
+                            className={`absolute ${drink.position} lg:block`}
+                            initial={{ opacity: 0, scale: 0 }}
+                            animate={{
+                                opacity: [0.3, 0.8, 0.3],
+                                scale: [0.8, 1, 0.8],
+                                y: [0, -20, 0],
+                                rotate: [0, 5, 0],
+                            }}
+                            transition={{
+                                duration: 6,
+                                repeat: Infinity,
+                                ease: "easeInOut",
+                                delay: drink.delay,
+                            }}>
+                            <div className="relative">
+                                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-full shadow-lg border-4 border-white overflow-hidden">
+                                    <img
+                                        src={drink.src}
+                                        alt={drink.alt}
+                                        className="w-full h-full object-cover"
+                                    />
+                                </div>
+                                <motion.div
+                                    className="absolute -bottom-2 -right-2 w-6 h-6 bg-primary rounded-full flex items-center justify-center"
+                                    animate={{
+                                        scale: [1, 1.2, 1],
+                                    }}
+                                    transition={{
+                                        duration: 2,
+                                        repeat: Infinity,
+                                        ease: "easeInOut",
+                                        delay: drink.delay + 1,
+                                    }}>
+                                    <span className="text-primary-foreground text-xs font-bold">
+                                        +
+                                    </span>
+                                </motion.div>
+                            </div>
+                        </motion.div>
+                    ))}
+
+                    {/* Main Content */}
+                    <div className="relative z-10 text-center max-w-6xl mx-auto px-4 sm:px-0">
+                        {/* Main Heading */}
+                        <motion.h1
+                            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-foreground leading-tight mb-4 sm:mb-6"
+                            initial={{ opacity: 0, y: 30 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8, delay: 0.3 }}>
+                            Your Favorite{" "}
+                            <span className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+                                Drinks
+                            </span>
+                            , <br className="hidden sm:block" />
+                            Delivered Fast
+                        </motion.h1>
+
+                        {/* Subheading */}
+                        <motion.p
+                            className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed px-2 sm:px-0"
+                            initial={{ opacity: 0, y: 30 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8, delay: 0.5 }}>
+                            Order chilled, refreshing drinks straight to your
+                            door in{" "}
+                            <span className="font-semibold text-foreground">
+                                minutes
+                            </span>
+                            .
+                        </motion.p>
+
+                        {/* CTA Button */}
+                        <motion.div
+                            className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mb-8 sm:mb-12 px-4 sm:px-0"
+                            initial={{ opacity: 0, y: 30 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8, delay: 0.7 }}>
+                            <motion.div
+                                className="w-full sm:w-auto"
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}>
+                                <Button className="w-full sm:w-auto text-base sm:text-lg !p-6 sm:!p-8 bg-accent hover:bg-accent/90 text-accent-foreground rounded-full transition-all duration-300 group">
+                                    Shop Now
+                                    <ArrowRightIcon className="ml-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform duration-200" />
+                                </Button>
+                            </motion.div>
+
+                            <motion.div
+                                className="w-full sm:w-auto"
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}>
+                                <Button className="w-full sm:w-auto text-base sm:text-lg bg-background border border-border text-foreground !p-6 sm:!p-8 hover:bg-foreground hover:text-background rounded-full transition-all duration-300 shadow-none">
+                                    Learn More
+                                </Button>
+                            </motion.div>
+                        </motion.div>
+
+                        {/* Features Grid */}
+                        <motion.div
+                            className="hidden md:flex flex-wrap justify-center lg:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-12 max-w-5xl mx-auto"
+                            initial={{ opacity: 0, y: 30 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8, delay: 1.3 }}>
+                            {features.map((feature, index) => (
+                                <motion.div
+                                    key={feature.title}
+                                    className="flex flex-col items-center text-center p-4 sm:p-6 bg-background/30 backdrop-blur-sm border border-border/30 rounded-2xl hover:bg-accent/10 transition-all duration-300"
+                                    whileHover={{ scale: 1.02, y: -2 }}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{
+                                        duration: 0.5,
+                                        delay: 1.5 + index * 0.1,
+                                    }}>
+                                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-full flex items-center justify-center mb-3">
+                                        <feature.icon
+                                            className="w-5 h-5 sm:w-6 sm:h-6 text-primary"
+                                            weight="fill"
+                                        />
+                                    </div>
+                                    <h3 className="font-semibold text-foreground mb-1 text-sm sm:text-base">
+                                        {feature.title}
+                                    </h3>
+                                    <p className="text-xs sm:text-sm text-muted-foreground">
+                                        {feature.description}
+                                    </p>
+                                </motion.div>
+                            ))}
+                        </motion.div>
+                    </div>
+
+                    {/* Scroll Indicator */}
+                    <motion.div
+                        className="absolute bottom-4 sm:bottom-8 left-1/2 transform -translate-x-1/2"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 1, delay: 2 }}>
+                        <motion.div
+                            className="w-6 h-10 border-2 border-muted-foreground/30 rounded-full flex justify-center"
+                            animate={{ y: [0, 10, 0] }}
+                            transition={{ duration: 2, repeat: Infinity }}>
+                            <motion.div
+                                className="w-1 h-3 bg-muted-foreground/60 rounded-full mt-2"
+                                animate={{ y: [0, 12, 0] }}
+                                transition={{ duration: 2, repeat: Infinity }}
+                            />
+                        </motion.div>
+                    </motion.div>
+                </section>
+
+                {/* Categories Preview Section */}
+                <section className="py-16 sm:py-24 px-4 sm:px-8 lg:px-16 xl:px-32 bg-background">
+                    <div className="max-w-6xl mx-auto">
+                        {/* Section Heading */}
+                        <motion.div
+                            className="text-center mb-12 sm:mb-16"
+                            initial={{ opacity: 0, y: 30 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8 }}
+                            viewport={{ once: true }}>
+                            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">
+                                Shop by Category
+                            </h2>
+                            <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
+                                Explore our wide selection of refreshing drinks
+                                organized by category
+                            </p>
+                        </motion.div>
+
+                        {/* Categories Grid */}
+                        <motion.div
+                            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6"
+                            initial={{ opacity: 0, y: 30 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8, delay: 0.2 }}
+                            viewport={{ once: true }}>
+                            {categories.map((category, index) => (
+                                <motion.div
+                                    key={category.name}
+                                    className="group relative overflow-hidden rounded-2xl bg-background transition-all duration-300 cursor-pointer"
+                                    whileHover={{ scale: 1.05, y: -5 }}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    transition={{
+                                        duration: 0.5,
+                                        delay: 0.4 + index * 0.1,
+                                    }}
+                                    viewport={{ once: true }}>
+                                    {/* Background Gradient */}
+                                    <div
+                                        className={`absolute inset-0 bg-gradient-to-br ${category.color} opacity-5 group-hover:opacity-10 transition-opacity duration-300`}
+                                    />
+
+                                    {/* Content */}
+                                    <div className="relative p-6 sm:p-8 text-center">
+                                        <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 shadow-xs rounded-full overflow-hidden">
+                                            <img
+                                                src={category.image}
+                                                alt={category.name}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        </div>
+                                        <h3 className="font-semibold text-foreground text-lg sm:text-xl mb-2">
+                                            {category.name}
+                                        </h3>
+                                        <p className="text-sm text-muted-foreground mb-4">
+                                            {category.count} options
+                                        </p>
+
+                                        {/* Hover Effect */}
+                                        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                                        {/* Arrow Icon */}
+                                        <motion.div
+                                            className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                                            initial={{ x: 10 }}
+                                            whileHover={{ x: 0 }}
+                                            transition={{ duration: 0.2 }}>
+                                            <ArrowRightIcon className="w-5 h-5 text-primary" />
+                                        </motion.div>
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </motion.div>
+
+                        {/* View All Button */}
+                        <motion.div
+                            className="text-center mt-12 sm:mt-16"
+                            initial={{ opacity: 0, y: 30 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8, delay: 0.6 }}
+                            viewport={{ once: true }}>
+                            <Button className="sm:w-auto text-base sm:text-lg !p-6 sm:!p-8 bg-accent hover:bg-accent/90 text-accent-foreground rounded-full transition-all duration-300 group">
+                                View All Categories
+                                <ArrowRightIcon className="ml-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform duration-200" />
+                            </Button>
+                        </motion.div>
+                    </div>
+                </section>
+
+                {/* Featured Products Section */}
+                <section className="py-16 sm:py-24 px-4 sm:px-8 lg:px-16 xl:px-32 bg-background">
+                    <div className="max-w-7xl mx-auto">
+                        {/* Section Heading */}
+                        <motion.div
+                            className="text-center mb-12 sm:mb-16"
+                            initial={{ opacity: 0, y: 30 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8 }}
+                            viewport={{ once: true }}>
+                            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">
+                                Top Picks for You
+                            </h2>
+                            <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
+                                Discover our most popular drinks, handpicked for
+                                you
+                            </p>
+                        </motion.div>
+
+                        {/* Products Grid */}
+                        <motion.div
+                            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 sm:gap-8"
+                            initial={{ opacity: 0, y: 30 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8, delay: 0.2 }}
+                            viewport={{ once: true }}>
+                            {featuredProducts.map((product) => (
+                                <ProductCard
+                                    key={product.id}
+                                    {...product}
+                                />
+                            ))}
+                        </motion.div>
+
+                        {/* View All Products Button */}
+                        <motion.div
+                            className="text-center mt-12 sm:mt-16"
+                            initial={{ opacity: 0, y: 30 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8, delay: 0.6 }}
+                            viewport={{ once: true }}>
+                            <Button className="text-lg !p-8 bg-accent hover:bg-accent/90 text-accent-foreground rounded-full transition-all duration-300 group">
+                                View All Products
+                                <ArrowRightIcon className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform duration-200" />
+                            </Button>
+                        </motion.div>
+                    </div>
+                </section>
+
+                {/* Why Choose Us Section */}
+                <section className="py-16 sm:py-24 px-4 sm:px-8 lg:px-16 xl:px-32 bg-muted/30">
+                    <div className="max-w-6xl mx-auto">
+                        {/* Section Heading */}
+                        <motion.div
+                            className="text-center mb-12 sm:mb-16"
+                            initial={{ opacity: 0, y: 30 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8 }}
+                            viewport={{ once: true }}>
+                            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">
+                                Why We're Different
+                            </h2>
+                            <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
+                                Experience the difference with our unique
+                                approach to drink delivery
+                            </p>
+                        </motion.div>
+
+                        {/* Features Grid */}
+                        <motion.div
+                            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8"
+                            initial={{ opacity: 0, y: 30 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8, delay: 0.2 }}
+                            viewport={{ once: true }}>
+                            {whyChooseUs.map((feature, index) => (
+                                <motion.div
+                                    key={feature.title}
+                                    className="group bg-background rounded-2xl p-6 sm:p-8 text-center border border-border/20 hover:border-border/40 transition-all duration-300"
+                                    whileHover={{ scale: 1.02, y: -2 }}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    transition={{
+                                        duration: 0.5,
+                                        delay: 0.4 + index * 0.1,
+                                    }}
+                                    viewport={{ once: true }}>
+                                    {/* Icon */}
+                                    <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-6 bg-primary/10 rounded-full flex items-center justify-center group-hover:bg-primary/20 transition-colors duration-300">
+                                        <feature.icon
+                                            className="w-8 h-8 sm:w-10 sm:h-10 text-primary"
+                                            weight="fill"
+                                        />
+                                    </div>
+
+                                    {/* Content */}
+                                    <h3 className="font-semibold text-foreground text-lg sm:text-xl mb-3">
+                                        {feature.title}
+                                    </h3>
+                                    <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+                                        {feature.description}
+                                    </p>
+                                </motion.div>
+                            ))}
+                        </motion.div>
+                    </div>
+                </section>
+            </main>
+            <Footer />
+        </>
+    );
+}
