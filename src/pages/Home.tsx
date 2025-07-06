@@ -164,7 +164,7 @@ export default function Home() {
             <Header />
             <main className="flex flex-col justify-between w-full">
                 {/* Hero Section */}
-                <section className="relative min-h-screen flex items-center justify-center px-4 sm:px-8 lg:px-16 xl:px-32 pt-16 sm:pt-20">
+                <section className="relative min-h-[90dvh] flex items-center justify-center px-4 sm:px-8 lg:px-16 xl:px-32">
                     {/* Background Elements */}
                     <div className="absolute inset-0 overflow-hidden">
                         <motion.div
@@ -529,7 +529,7 @@ export default function Home() {
                 </section>
 
                 {/* Why Choose Us Section */}
-                <section className="py-16 sm:py-24 px-4 sm:px-8 lg:px-16 xl:px-32 bg-muted/30">
+                <section className="py-16 sm:py-24 px-4 sm:px-8 lg:px-16 xl:px-32 bg-background">
                     <div className="max-w-6xl mx-auto">
                         {/* Section Heading */}
                         <motion.div
@@ -557,7 +557,7 @@ export default function Home() {
                             {whyChooseUs.map((feature, index) => (
                                 <motion.div
                                     key={feature.title}
-                                    className="group bg-background rounded-2xl p-6 sm:p-8 text-center border border-border/20 hover:border-border/40 transition-all duration-300"
+                                    className="group bg-muted rounded-2xl p-6 sm:p-8 text-center border border-border/20 hover:border-border/40 transition-all duration-300"
                                     whileHover={{ scale: 1.02, y: -2 }}
                                     initial={{ opacity: 0, y: 20 }}
                                     whileInView={{ opacity: 1, y: 0 }}

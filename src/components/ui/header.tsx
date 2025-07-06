@@ -1,9 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
-    House,
-    EnvelopeIcon,
-    StorefrontIcon,
     XIcon,
     ListIcon,
     ShoppingCartIcon,
@@ -30,17 +27,31 @@ import { Link } from "wouter";
 
 export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [currentScroll, setCurrentScroll] = useState(0);
+
+    // Set initial scroll position when component loads
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
+    if (isMenuOpen) {
+        document.body.style.overflow = "hidden";
+        window.scrollTo(0, 0);
+    } else {
+        document.body.style.overflow = "auto";
+        window.scrollTo(0, currentScroll);
+    }
 
     const navItems = [
-        { name: "Home", icon: House, href: "home" },
-        { name: "Shop", icon: StorefrontIcon, href: "about" },
-        { name: "About", icon: GearIcon, href: "services" },
-        { name: "Contact", icon: EnvelopeIcon, href: "contact" },
+        { name: "Home", href: "home" },
+        { name: "Shop", href: "shop" },
+        { name: "About", href: "about" },
+        { name: "Contact", href: "contact" },
     ];
 
     return (
         <motion.header
-            className="fixed top-0 left-0 right-0 z-50 bg-background px-4 sm:px-8 xl:px-32"
+            className="sticky top-0 left-0 right-0 z-50 bg-background px-4 sm:px-8 xl:px-32"
             initial={{ y: -100 }}
             animate={{ y: 0 }}
             transition={{ duration: 0.6, ease: "easeOut" }}>
@@ -193,7 +204,10 @@ export default function Header() {
                     {/* Mobile Menu Button */}
                     <motion.button
                         className="xl:hidden p-2 rounded-lg hover:bg-muted/50 transition-colors"
-                        onClick={() => setIsMenuOpen(!isMenuOpen)}
+                        onClick={() => {
+                            setIsMenuOpen(!isMenuOpen);
+                            setCurrentScroll(window.scrollY);
+                        }}
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}>
                         <AnimatePresence mode="wait">
