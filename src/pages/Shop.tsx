@@ -191,14 +191,14 @@ export default function Shop() {
                 <section className="pb-8 px-4 sm:px-8 lg:px-16 xl:px-32">
                     <div className="max-w-7xl mx-auto">
                         <motion.div
-                            className="text-center mb-8 py-10"
+                            className="text-center mb-6 py-8"
                             initial={{ opacity: 0, y: 30 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8 }}>
-                            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">
+                            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-3">
                                 Shop All Drinks
                             </h1>
-                            <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
+                            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
                                 Discover our complete collection of refreshing
                                 beverages
                             </p>
@@ -211,7 +211,7 @@ export default function Shop() {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8, delay: 0.2 }}>
                             {/* Search Bar */}
-                            <div className="relative max-w-2xl border-4 p-6 py-4 mx-auto flex items-center rounded-full">
+                            <div className="relative max-w-2xl border-4 p-6 py-0 mx-auto flex items-center rounded-full">
                                 <MagnifyingGlassIcon className="w-8 h-8 text-muted-foreground" />
                                 <Input
                                     type="text"

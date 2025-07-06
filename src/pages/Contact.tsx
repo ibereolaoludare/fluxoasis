@@ -96,14 +96,14 @@ export default function Contact() {
                 <section className="pb-16 px-4 sm:px-8 lg:px-16 xl:px-32">
                     <div className="max-w-6xl mx-auto">
                         <motion.div
-                            className="text-center mb-12 py-20"
+                            className="text-center mb-8 py-12"
                             initial={{ opacity: 0, y: 30 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8 }}>
-                            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-6">
+                            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">
                                 Get in Touch
                             </h1>
-                            <p className="text-lg sm:text-xl lg:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+                            <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
                                 Have questions? We'd love to hear from you. Send
                                 us a message and we'll respond as soon as
                                 possible.
@@ -112,35 +112,35 @@ export default function Contact() {
 
                         {/* Contact Info Grid */}
                         <motion.div
-                            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 mb-16"
+                            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-12"
                             initial={{ opacity: 0, y: 30 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8, delay: 0.2 }}>
                             {contactInfo.map((info, index) => (
                                 <motion.div
                                     key={info.title}
-                                    className="text-center p-6 bg-muted/30 rounded-2xl border border-border/20 hover:border-border/40 transition-all duration-300 group"
+                                    className="text-center p-4 bg-muted/30 rounded-xl border border-border/20 hover:border-border/40 transition-all duration-300 group"
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{
                                         duration: 0.5,
                                         delay: 0.4 + index * 0.1,
                                     }}>
-                                    <div className="w-12 h-12 mx-auto mb-4 bg-primary/10 rounded-full flex items-center justify-center group-hover:bg-primary/20 transition-colors duration-300">
+                                    <div className="w-10 h-10 mx-auto mb-3 bg-primary/10 rounded-full flex items-center justify-center group-hover:bg-primary/20 transition-colors duration-300">
                                         <info.icon
-                                            className="w-6 h-6 text-primary"
+                                            className="w-5 h-5 text-primary"
                                             weight="fill"
                                         />
                                     </div>
-                                    <h3 className="font-semibold text-foreground text-lg mb-2">
+                                    <h3 className="font-semibold text-foreground text-base mb-1">
                                         {info.title}
                                     </h3>
                                     <a
                                         href={info.href}
-                                        className="text-primary font-medium text-base mb-2 block hover:text-primary/80 transition-colors duration-200">
+                                        className="text-primary font-medium text-sm mb-1 block hover:text-primary/80 transition-colors duration-200">
                                         {info.value}
                                     </a>
-                                    <p className="text-muted-foreground">
+                                    <p className="text-muted-foreground text-sm">
                                         {info.description}
                                     </p>
                                 </motion.div>
@@ -150,31 +150,31 @@ export default function Contact() {
                 </section>
 
                 {/* Contact Form Section */}
-                <section className="py-16 sm:py-24 px-4 sm:px-8 lg:px-16 xl:px-32 bg-muted/30">
+                <section className="py-12 sm:py-16 px-4 sm:px-8 lg:px-16 xl:px-32 bg-muted/30">
                     <div>
                         <motion.div
-                            className="text-center mb-12"
+                            className="text-center mb-8"
                             initial={{ opacity: 0, y: 30 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8 }}
                             viewport={{ once: true }}>
-                            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-6">
+                            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-4">
                                 Send us a Message
                             </h2>
-                            <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
+                            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
                                 Fill out the form below and we'll get back to
                                 you as soon as possible.
                             </p>
                         </motion.div>
 
                         <motion.div
-                            className="grid lg:grid-cols-2 gap-12 lg:gap-16"
+                            className="grid lg:grid-cols-2 gap-8 lg:gap-12"
                             initial={{ opacity: 0, y: 30 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8, delay: 0.2 }}
                             viewport={{ once: true }}>
                             {/* Contact Form */}
-                            <div className="bg-background rounded-2xl p-6 sm:p-8 border border-border/20">
+                            <div className="bg-background rounded-xl p-4 sm:p-6 border border-border/20">
                                 {isSubmitted ? (
                                     <motion.div
                                         className="text-center py-12"
@@ -198,8 +198,8 @@ export default function Contact() {
                                 ) : (
                                     <form
                                         onSubmit={handleSubmit}
-                                        className="space-y-6">
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                        className="space-y-4">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                             <div>
                                                 <Label
                                                     htmlFor="name"
@@ -279,16 +279,16 @@ export default function Contact() {
                                             <Button
                                                 type="submit"
                                                 disabled={isSubmitting}
-                                                className="w-full sm:w-auto text-base sm:text-lg !p-6 sm:!p-8 bg-accent hover:bg-accent/90 text-accent-foreground rounded-full transition-all duration-300 group disabled:opacity-50 disabled:cursor-not-allowed">
+                                                className="w-full sm:w-auto text-sm sm:text-base !p-4 sm:!p-6 bg-accent hover:bg-accent/90 text-accent-foreground rounded-full transition-all duration-300 group disabled:opacity-50 disabled:cursor-not-allowed">
                                                 {isSubmitting ? (
                                                     <>
-                                                        <div className="w-5 h-5 border-2 border-accent-foreground/30 border-t-accent-foreground rounded-full animate-spin mr-2" />
+                                                        <div className="w-4 h-4 border-2 border-accent-foreground/30 border-t-accent-foreground rounded-full animate-spin mr-2" />
                                                         Sending...
                                                     </>
                                                 ) : (
                                                     <>
                                                         Send Message
-                                                        <PaperPlaneIcon className="ml-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform duration-200" />
+                                                        <PaperPlaneIcon className="ml-2 w-3 h-3 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform duration-200" />
                                                     </>
                                                 )}
                                             </Button>
@@ -298,12 +298,12 @@ export default function Contact() {
                             </div>
 
                             {/* Additional Info */}
-                            <div className="space-y-8">
+                            <div className="space-y-6">
                                 <div>
-                                    <h3 className="text-2xl font-bold text-foreground mb-4">
+                                    <h3 className="text-xl font-bold text-foreground mb-3">
                                         Why Choose FluxOasis?
                                     </h3>
-                                    <div className="space-y-4 text-muted-foreground">
+                                    <div className="space-y-3 text-muted-foreground">
                                         <p>
                                             We're committed to providing
                                             exceptional customer service and
@@ -320,10 +320,10 @@ export default function Contact() {
                                 </div>
 
                                 <div>
-                                    <h3 className="text-xl font-semibold text-foreground mb-4">
+                                    <h3 className="text-lg font-semibold text-foreground mb-3">
                                         Response Time
                                     </h3>
-                                    <div className="space-y-3">
+                                    <div className="space-y-2">
                                         <div className="flex items-center gap-3">
                                             <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                                             <span className="text-muted-foreground">
@@ -346,7 +346,7 @@ export default function Contact() {
                                 </div>
 
                                 <div>
-                                    <h3 className="text-xl font-semibold text-foreground mb-4">
+                                    <h3 className="text-lg font-semibold text-foreground mb-3">
                                         Business Hours
                                     </h3>
                                     <div className="space-y-2 text-muted-foreground">
@@ -373,24 +373,24 @@ export default function Contact() {
                 </section>
 
                 {/* FAQ Section */}
-                <section className="py-16 sm:py-24 px-4 sm:px-8 lg:px-16 xl:px-32">
+                <section className="py-12 sm:py-16 px-4 sm:px-8 lg:px-16 xl:px-32">
                     <div className="max-w-4xl mx-auto">
                         <motion.div
-                            className="text-center mb-12"
+                            className="text-center mb-8"
                             initial={{ opacity: 0, y: 30 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8 }}
                             viewport={{ once: true }}>
-                            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-6">
+                            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-4">
                                 Frequently Asked Questions
                             </h2>
-                            <p className="text-lg sm:text-xl text-muted-foreground">
+                            <p className="text-base sm:text-lg text-muted-foreground">
                                 Quick answers to common questions
                             </p>
                         </motion.div>
 
                         <motion.div
-                            className="space-y-6"
+                            className="space-y-4"
                             initial={{ opacity: 0, y: 30 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8, delay: 0.2 }}
@@ -402,7 +402,7 @@ export default function Contact() {
                                 },
                                 {
                                     question: "What areas do you serve?",
-                                    answer: "We currently serve Lagos, Nigeria with plans to expand to other cities. Check our app or website to see if we deliver to your area.",
+                                    answer: "We currently serve Abuja, Nigeria with plans to expand to other cities. Check our app or website to see if we deliver to your area.",
                                 },
                                 {
                                     question: "Can I track my order?",
@@ -416,7 +416,7 @@ export default function Contact() {
                             ].map((faq, index) => (
                                 <motion.div
                                     key={index}
-                                    className="bg-muted/30 rounded-2xl p-6 border border-border/20"
+                                    className="bg-muted/30 rounded-xl p-4 border border-border/20"
                                     initial={{ opacity: 0, y: 20 }}
                                     whileInView={{ opacity: 1, y: 0 }}
                                     transition={{
@@ -424,10 +424,10 @@ export default function Contact() {
                                         delay: 0.4 + index * 0.1,
                                     }}
                                     viewport={{ once: true }}>
-                                    <h3 className="font-semibold text-foreground text-lg mb-3">
+                                    <h3 className="font-semibold text-foreground text-base mb-2">
                                         {faq.question}
                                     </h3>
-                                    <p className="text-muted-foreground leading-relaxed">
+                                    <p className="text-muted-foreground leading-relaxed text-sm">
                                         {faq.answer}
                                     </p>
                                 </motion.div>

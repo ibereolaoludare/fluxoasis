@@ -104,14 +104,14 @@ export default function About() {
                 <section className="pb-16 px-4 sm:px-8 lg:px-16 xl:px-32">
                     <div className="max-w-6xl mx-auto">
                         <motion.div
-                            className="text-center mb-12 py-20"
+                            className="text-center mb-8 py-12"
                             initial={{ opacity: 0, y: 30 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8 }}>
-                            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-6">
+                            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">
                                 Our Story
                             </h1>
-                            <p className="text-lg sm:text-xl lg:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+                            <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
                                 We're on a mission to bring your favorite drinks
                                 to your doorstep in minutes, not hours. Because
                                 great moments deserve great beverages.
@@ -120,33 +120,33 @@ export default function About() {
 
                         {/* Stats Grid */}
                         <motion.div
-                            className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8"
+                            className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6"
                             initial={{ opacity: 0, y: 30 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8, delay: 0.2 }}>
                             {stats.map((stat, index) => (
                                 <motion.div
                                     key={stat.label}
-                                    className="text-center p-6 bg-muted/30 rounded-2xl border border-border/20"
+                                    className="text-center p-4 bg-muted/30 rounded-xl border border-border/20"
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{
                                         duration: 0.5,
                                         delay: 0.4 + index * 0.1,
                                     }}>
-                                    <div className="w-12 h-12 mx-auto mb-4 bg-primary/10 rounded-full flex items-center justify-center">
+                                    <div className="w-10 h-10 mx-auto mb-3 bg-primary/10 rounded-full flex items-center justify-center">
                                         <stat.icon
-                                            className="w-6 h-6 text-primary"
+                                            className="w-5 h-5 text-primary"
                                             weight="fill"
                                         />
                                     </div>
-                                    <div className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
+                                    <div className="text-xl sm:text-2xl font-bold text-foreground mb-1">
                                         {stat.number}
                                     </div>
-                                    <div className="text-sm sm:text-base font-semibold text-foreground mb-1">
+                                    <div className="text-xs sm:text-sm font-semibold text-foreground mb-1">
                                         {stat.label}
                                     </div>
-                                    <div className="text-xs sm:text-sm text-muted-foreground">
+                                    <div className="text-xs text-muted-foreground">
                                         {stat.description}
                                     </div>
                                 </motion.div>

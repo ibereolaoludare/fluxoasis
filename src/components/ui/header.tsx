@@ -63,25 +63,25 @@ export default function Header() {
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}>
                         <motion.div
-                            className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center"
+                            className="w-6 h-6 bg-primary rounded-lg flex items-center justify-center"
                             animate={{ rotate: [0, 360] }}
                             transition={{
                                 duration: 20,
                                 repeat: Infinity,
                                 ease: "linear",
                             }}>
-                            <span className="text-primary-foreground font-bold">
+                            <span className="text-primary-foreground font-bold text-sm">
                                 F
                             </span>
                         </motion.div>
-                        <span className="ml-3 text-2xl sm:text-3xl xl:text-4xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+                        <span className="ml-2 text-xl sm:text-2xl xl:text-3xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
                             FluxOasis
                         </span>
                     </motion.div>
 
                     {/* Desktop Navigation Menu */}
                     <NavigationMenu className="hidden xl:flex">
-                        <NavigationMenuList className="space-x-12 bg-muted p-2 px-2 rounded-full">
+                        <NavigationMenuList className="space-x-8 bg-muted p-2 rounded-full">
                             {navItems.map((item, index) => (
                                 <NavigationMenuItem
                                     className="hover:bg-transparent"
@@ -95,7 +95,7 @@ export default function Header() {
                                         }}>
                                         <Link
                                             to={item.href}
-                                            className="text-sm font-medium flex items-center transition-colors duration-200 p-2 px-6 text-foreground rounded-full hover:bg-foreground hover:text-background">
+                                            className="text-xs font-medium flex items-center transition-colors duration-200 p-2 px-4 text-foreground rounded-full hover:bg-foreground hover:text-background">
                                             <span>{item.name}</span>
                                         </Link>
                                     </motion.div>
@@ -118,10 +118,10 @@ export default function Header() {
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}>
                                         <ShoppingCartIcon
-                                            className="w-6 h-6 text-foreground"
+                                            className="w-5 h-5 text-foreground"
                                             weight="regular"
                                         />
-                                        <span className="absolute -top-1 -right-1 bg-accent text-accent-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                                        <span className="absolute -top-1 -right-1 bg-accent text-accent-foreground text-xs rounded-full w-4 h-4 flex items-center justify-center">
                                             3
                                         </span>
                                     </motion.button>
@@ -163,7 +163,7 @@ export default function Header() {
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}>
                                         <UserIcon
-                                            className="w-6 h-6 text-foreground"
+                                            className="w-5 h-5 text-foreground"
                                             weight="regular"
                                         />
                                     </motion.button>
