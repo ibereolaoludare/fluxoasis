@@ -10,10 +10,10 @@ import { Link } from "wouter";
 
 export default function Footer() {
     const links = [
-        { name: "About", href: "#" },
-        { name: "Contact", href: "#" },
-        { name: "FAQs", href: "#" },
-        { name: "Terms", href: "#" },
+        { name: "About", href: "/about" },
+        { name: "Contact", href: "/contact" },
+        { name: "FAQs", href: "/contact" },
+        { name: "Terms", href: "/about" },
     ];
 
     const socials = [
@@ -73,7 +73,7 @@ export default function Footer() {
                                     variant="ghost"
                                     className="text-xs sm:text-sm text-muted-foreground hover:text-foreground hover:bg-accent/10 transition-all duration-200 px-2 sm:px-3 py-1 rounded-lg"
                                     asChild>
-                                    <a href={link.href}>{link.name}</a>
+                                    <Link to={link.href}>{link.name}</Link>
                                 </Button>
                             </motion.div>
                         ))}

@@ -13,6 +13,7 @@ import {
 } from "@phosphor-icons/react";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
+import { Link } from "wouter";
 
 export default function About() {
     const stats = [
@@ -194,17 +195,6 @@ export default function About() {
                                         the same.
                                     </p>
                                 </div>
-                                <div className="mt-8">
-                                    <motion.div
-                                        className="w-full sm:w-auto"
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}>
-                                        <Button className="w-full sm:w-auto text-base sm:text-lg !p-6 sm:!p-8 bg-accent hover:bg-accent/90 text-accent-foreground rounded-full transition-all duration-300 group">
-                                            Learn More About Us
-                                            <ArrowRightIcon className="ml-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform duration-200" />
-                                        </Button>
-                                    </motion.div>
-                                </div>
                             </motion.div>
 
                             {/* Image */}
@@ -361,9 +351,13 @@ export default function About() {
                                     className="w-full sm:w-auto"
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}>
-                                    <Button className="w-full sm:w-auto text-base sm:text-lg !p-6 sm:!p-8 bg-accent hover:bg-accent/90 text-accent-foreground rounded-full transition-all duration-300 group">
-                                        Start Shopping
-                                        <ArrowRightIcon className="ml-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform duration-200" />
+                                    <Button
+                                        asChild
+                                        className="w-full sm:w-auto text-sm sm:text-base !p-4 sm:!p-6 bg-accent hover:bg-accent/90 text-accent-foreground rounded-full transition-all duration-300 group">
+                                        <Link to="/shop">
+                                            Start Shopping
+                                            <ArrowRightIcon className="ml-2 w-3 h-3 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform duration-200" />
+                                        </Link>
                                     </Button>
                                 </motion.div>
 
@@ -371,8 +365,10 @@ export default function About() {
                                     className="w-full sm:w-auto"
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}>
-                                    <Button className="w-full sm:w-auto text-base sm:text-lg bg-background border border-border text-foreground !p-6 sm:!p-8 hover:bg-foreground hover:text-background rounded-full transition-all duration-300 shadow-none">
-                                        Contact Us
+                                    <Button
+                                        asChild
+                                        className="w-full sm:w-auto text-sm sm:text-base bg-background border border-border text-foreground !p-4 sm:!p-6 hover:bg-foreground hover:text-background rounded-full transition-all duration-300 shadow-none">
+                                        <Link to="/contact">Contact Us</Link>
                                     </Button>
                                 </motion.div>
                             </motion.div>

@@ -69,7 +69,13 @@ export default function ProductCard({
                     </div>
 
                     {/* Add to Cart Button */}
-                    <Button className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full !p-4 transition-all duration-200">
+                    <Button
+                        onClick={() => {
+                            // Add to cart functionality
+                            console.log(`Added ${name} to cart`);
+                            // You can implement actual cart functionality here
+                        }}
+                        className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full !p-4 transition-all duration-200">
                         <ShoppingCartIcon className="w-5 h-5 mr-1" />
                         Add
                     </Button>

@@ -12,19 +12,27 @@ import Shop from "./pages/Shop";
 import NotFound from "./pages/NotFound";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
+import Admin from "./pages/Admin";
+import SignUp from "./pages/SignUp";
+import LogIn from "./pages/LogIn";
+import { Toaster } from "./components/ui/sonner";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const urlPaths = ["home", "shop", "about", "contact"] as const; // update this array to add more url paths
+const urlPaths = ["home", "shop", "about", "contact", "admin", "signup", "login"] as const; // update this array to add more url paths
 
 function App() {
   return (
     <Fragment>
+      <Toaster position="bottom-right" />
       <Switch>
         <Route path="/" component={Home} />
         <Route path="/home" component={Home} />
         <Route path="/shop" component={Shop} />
         <Route path="/about" component={About} />
         <Route path="/contact" component={Contact} />
+        <Route path="/admin" component={Admin} />
+        <Route path="/signup" component={SignUp} />
+        <Route path="/login" component={LogIn} />
         <WouterRoute component={NotFound} />
       </Switch>
     </Fragment>

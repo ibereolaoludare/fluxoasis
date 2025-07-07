@@ -18,12 +18,15 @@ import {
 import {
     DropdownMenu,
     DropdownMenuContent,
+    DropdownMenuGroup,
     DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Link } from "wouter";
+import { checkUser, logOut } from "@/supabase";
+import { Button } from "./button";
 
 export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -132,73 +135,132 @@ export default function Header() {
                                     <DropdownMenuLabel>
                                         Shopping Cart
                                     </DropdownMenuLabel>
+                                    {/* <DropdownMenuSeparator /> */}
+                                    <DropdownMenuGroup className="space-y-2 py-2">
+                                        <DropdownMenuItem>
+                                            <PackageIcon
+                                                className="mr-2 h-4 w-4 text-foreground"
+                                                weight="fill"
+                                            />
+                                            <span>View Cart (3 items)</span>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem>
+                                            <HeartIcon
+                                                className="mr-2 h-4 w-4 text-foreground"
+                                                weight="fill"
+                                            />
+                                            <span>Wishlist</span>
+                                        </DropdownMenuItem>
+                                    </DropdownMenuGroup>
                                     <DropdownMenuSeparator />
-                                    <DropdownMenuItem>
-                                        <PackageIcon className="mr-2 h-4 w-4" />
-                                        <span>View Cart (3 items)</span>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem>
-                                        <HeartIcon className="mr-2 h-4 w-4" />
-                                        <span>Wishlist</span>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuSeparator />
-                                    <DropdownMenuItem>
+                                    <DropdownMenuGroup className="p-4 py-2 text-sm">
                                         <span className="font-semibold">
                                             Total: $299.99
                                         </span>
-                                    </DropdownMenuItem>
+                                    </DropdownMenuGroup>
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         </motion.div>
 
                         {/* User Dropdown */}
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ duration: 0.5, delay: 0.4 }}>
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <motion.button
-                                        className="p-3 rounded-full hover:bg-muted/50 transition-colors"
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}>
-                                        <UserIcon
-                                            className="w-5 h-5 text-foreground"
-                                            weight="regular"
-                                        />
-                                    </motion.button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent
-                                    align="end"
-                                    className="w-56">
-                                    <DropdownMenuLabel>
-                                        My Account
-                                    </DropdownMenuLabel>
-                                    <DropdownMenuSeparator />
-                                    <DropdownMenuItem>
-                                        <UserIcon className="mr-2 h-4 w-4" />
-                                        <span>Profile</span>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem>
-                                        <PackageIcon className="mr-2 h-4 w-4" />
-                                        <span>Orders</span>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem>
-                                        <HeartIcon className="mr-2 h-4 w-4" />
-                                        <span>Favorites</span>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem>
-                                        <GearIcon className="mr-2 h-4 w-4" />
-                                        <span>Settings</span>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuSeparator />
-                                    <DropdownMenuItem>
-                                        <SignOutIcon className="mr-2 h-4 w-4" />
-                                        <span>Sign Out</span>
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        </motion.div>
+                        {(() => {
+                            const [isUser, setIsUser] = useState<boolean | null | undefined>(null);
+
+                            useEffect(() => {
+                                let mounted = true;
+                                (async () => {
+                                    const valid = await checkUser("return");
+                                    if (mounted) setIsUser(valid);
+                                })();
+                                return () => { mounted = false; };
+                            }, []);
+
+                            if (isUser === null) {
+                                // Loading state, can show a skeleton or nothing
+                                return (
+                                    <motion.div
+                                        initial={{ opacity: 0, scale: 0.8 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ duration: 0.5, delay: 0.4 }}>
+                                        <div className="p-3 rounded-full bg-muted/30 animate-pulse w-10 h-10" />
+                                    </motion.div>
+                                );
+                            }
+
+                            if (isUser) {
+                                // User is authenticated, show dropdown
+                                return (
+                                    <motion.div
+                                        initial={{ opacity: 0, scale: 0.8 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ duration: 0.5, delay: 0.4 }}>
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <motion.button
+                                                    className="p-3 rounded-full hover:bg-muted/50 transition-colors"
+                                                    whileHover={{ scale: 1.05 }}
+                                                    whileTap={{ scale: 0.95 }}>
+                                                    <UserIcon
+                                                        className="w-5 h-5 text-foreground"
+                                                        weight="regular"
+                                                    />
+                                                </motion.button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent
+                                                align="end"
+                                                className="w-56">
+                                                <DropdownMenuLabel>
+                                                    My Account
+                                                </DropdownMenuLabel>
+                                                <DropdownMenuSeparator />
+                                                <DropdownMenuItem>
+                                                    <UserIcon className="mr-2 h-4 w-4 text-foreground" weight="fill" />
+                                                    <span>Profile</span>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem>
+                                                    <PackageIcon className="mr-2 h-4 w-4 text-foreground" weight="fill" />
+                                                    <span>Orders</span>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem>
+                                                    <HeartIcon className="mr-2 h-4 w-4 text-foreground" weight="fill" />
+                                                    <span>Favorites</span>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem>
+                                                    <GearIcon className="mr-2 h-4 w-4 text-foreground" weight="fill" />
+                                                    <span>Settings</span>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuSeparator />
+                                                <DropdownMenuItem onClick={logOut}>
+                                                    <SignOutIcon className="mr-2 h-4 w-4 text-foreground" weight="fill" />
+                                                    <span>Sign Out</span>
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    </motion.div>
+                                );
+                            }
+
+                            // User is not authenticated, show Sign Up and Log In buttons
+                            return (
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ duration: 0.5, delay: 0.4 }}
+                                    className="flex gap-2"
+                                >
+                                    <Link href="/signup">
+                                        <Button className="rounded-full hover:bg-foreground/90 bg-foreground text-background p-5">
+                                            Sign Up
+                                        </Button>
+                                    </Link>
+                                    <Link href="/login">
+                                        <Button className="rounded-full p-5 shadow-none hover:bg-primary hover:text-background" variant="outline">
+                                            Log In
+                                        </Button>
+                                    </Link>
+                                </motion.div>
+                            );
+                        })()}
                     </div>
 
                     {/* Mobile Menu Button */}

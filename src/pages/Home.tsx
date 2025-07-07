@@ -11,6 +11,7 @@ import {
     LockIcon,
 } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
+import { Link } from "wouter";
 import ProductCard from "@/components/ui/product-card";
 
 export default function Home() {
@@ -320,9 +321,13 @@ export default function Home() {
                                 className="w-full sm:w-auto"
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}>
-                                <Button className="w-full sm:w-auto text-sm sm:text-base !p-4 sm:!p-6 bg-accent hover:bg-accent/90 text-accent-foreground rounded-full transition-all duration-300 group">
-                                    Shop Now
-                                    <ArrowRightIcon className="ml-2 w-3 h-3 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform duration-200" />
+                                <Button
+                                    asChild
+                                    className="w-full sm:w-auto text-sm sm:text-base !p-4 sm:!p-6 bg-accent hover:bg-accent/90 text-accent-foreground rounded-full transition-all duration-300 group">
+                                    <Link to="/shop">
+                                        Shop Now
+                                        <ArrowRightIcon className="ml-2 w-3 h-3 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform duration-200" />
+                                    </Link>
                                 </Button>
                             </motion.div>
 
@@ -330,8 +335,10 @@ export default function Home() {
                                 className="w-full sm:w-auto"
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}>
-                                <Button className="w-full sm:w-auto text-sm sm:text-base bg-background border border-border text-foreground !p-4 sm:!p-6 hover:bg-foreground hover:text-background rounded-full transition-all duration-300 shadow-none">
-                                    Learn More
+                                <Button
+                                    asChild
+                                    className="w-full sm:w-auto text-sm sm:text-base bg-background border border-border text-foreground !p-4 sm:!p-6 hover:bg-foreground hover:text-background rounded-full transition-all duration-300 shadow-none">
+                                    <Link to="/about">Learn More</Link>
                                 </Button>
                             </motion.div>
                         </motion.div>
@@ -416,51 +423,54 @@ export default function Home() {
                             transition={{ duration: 0.8, delay: 0.2 }}
                             viewport={{ once: true }}>
                             {categories.map((category, index) => (
-                                <motion.div
+                                <Link
                                     key={category.name}
-                                    className="group relative overflow-hidden rounded-xl bg-background transition-all duration-300 cursor-pointer"
-                                    whileHover={{ scale: 1.05, y: -5 }}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    transition={{
-                                        duration: 0.5,
-                                        delay: 0.4 + index * 0.1,
-                                    }}
-                                    viewport={{ once: true }}>
-                                    {/* Background Gradient */}
-                                    <div
-                                        className={`absolute inset-0 bg-gradient-to-br ${category.color} opacity-5 group-hover:opacity-10 transition-opacity duration-300`}
-                                    />
+                                    to="/shop">
+                                    <motion.div
+                                        className="group relative overflow-hidden rounded-xl bg-background transition-all duration-300 cursor-pointer"
+                                        whileHover={{ scale: 1.05, y: -5 }}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        whileInView={{ opacity: 1, y: 0 }}
+                                        transition={{
+                                            duration: 0.5,
+                                            delay: 0.4 + index * 0.1,
+                                        }}
+                                        viewport={{ once: true }}>
+                                        {/* Background Gradient */}
+                                        <div
+                                            className={`absolute inset-0 bg-gradient-to-br ${category.color} opacity-5 group-hover:opacity-10 transition-opacity duration-300`}
+                                        />
 
-                                    {/* Content */}
-                                    <div className="relative p-4 sm:p-6 text-center">
-                                        <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 shadow-xs rounded-full overflow-hidden">
-                                            <img
-                                                src={category.image}
-                                                alt={category.name}
-                                                className="w-full h-full object-cover"
-                                            />
+                                        {/* Content */}
+                                        <div className="relative p-4 sm:p-6 text-center">
+                                            <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 shadow-xs rounded-full overflow-hidden">
+                                                <img
+                                                    src={category.image}
+                                                    alt={category.name}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            </div>
+                                            <h3 className="font-semibold text-foreground text-sm sm:text-base mb-1">
+                                                {category.name}
+                                            </h3>
+                                            <p className="text-xs text-muted-foreground mb-3">
+                                                {category.count} options
+                                            </p>
+
+                                            {/* Hover Effect */}
+                                            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                                            {/* Arrow Icon */}
+                                            <motion.div
+                                                className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                                                initial={{ x: 10 }}
+                                                whileHover={{ x: 0 }}
+                                                transition={{ duration: 0.2 }}>
+                                                <ArrowRightIcon className="w-4 h-4 text-primary" />
+                                            </motion.div>
                                         </div>
-                                        <h3 className="font-semibold text-foreground text-sm sm:text-base mb-1">
-                                            {category.name}
-                                        </h3>
-                                        <p className="text-xs text-muted-foreground mb-3">
-                                            {category.count} options
-                                        </p>
-
-                                        {/* Hover Effect */}
-                                        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-                                        {/* Arrow Icon */}
-                                        <motion.div
-                                            className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                                            initial={{ x: 10 }}
-                                            whileHover={{ x: 0 }}
-                                            transition={{ duration: 0.2 }}>
-                                            <ArrowRightIcon className="w-4 h-4 text-primary" />
-                                        </motion.div>
-                                    </div>
-                                </motion.div>
+                                    </motion.div>
+                                </Link>
                             ))}
                         </motion.div>
 
@@ -471,9 +481,13 @@ export default function Home() {
                             whileInView={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8, delay: 0.6 }}
                             viewport={{ once: true }}>
-                            <Button className="sm:w-auto text-sm sm:text-base !p-4 sm:!p-6 bg-accent hover:bg-accent/90 text-accent-foreground rounded-full transition-all duration-300 group">
-                                View All Categories
-                                <ArrowRightIcon className="ml-2 w-3 h-3 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform duration-200" />
+                            <Button
+                                asChild
+                                className="sm:w-auto text-sm sm:text-base !p-4 sm:!p-6 bg-accent hover:bg-accent/90 text-accent-foreground rounded-full transition-all duration-300 group">
+                                <Link to="/shop">
+                                    View All Categories
+                                    <ArrowRightIcon className="ml-2 w-3 h-3 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform duration-200" />
+                                </Link>
                             </Button>
                         </motion.div>
                     </div>
@@ -520,9 +534,13 @@ export default function Home() {
                             whileInView={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8, delay: 0.6 }}
                             viewport={{ once: true }}>
-                            <Button className="text-sm sm:text-base !p-4 sm:!p-6 bg-accent hover:bg-accent/90 text-accent-foreground rounded-full transition-all duration-300 group">
-                                View All Products
-                                <ArrowRightIcon className="ml-2 w-3 h-3 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform duration-200" />
+                            <Button
+                                asChild
+                                className="text-sm sm:text-base !p-4 sm:!p-6 bg-accent hover:bg-accent/90 text-accent-foreground rounded-full transition-all duration-300 group">
+                                <Link to="/shop">
+                                    View All Products
+                                    <ArrowRightIcon className="ml-2 w-3 h-3 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform duration-200" />
+                                </Link>
                             </Button>
                         </motion.div>
                     </div>
