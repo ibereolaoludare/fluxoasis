@@ -4,7 +4,6 @@ import {
     UserIcon,
     CreditCardIcon,
     SignOutIcon,
-    TrashIcon,
     PlusIcon,
     PencilIcon,
     XIcon,
@@ -20,20 +19,125 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useSearchParams } from "wouter";
 import Header from "@/components/ui/header";
-import { checkUser } from "@/supabase";
+import { checkUser, supabase, logOut } from "@/supabase";
 import { navigate } from "wouter/use-browser-location";
+import { toast } from "sonner";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+    DialogClose,
+} from "@/components/ui/dialog";
+
+// Add Address type
+interface Address {
+    id: number;
+    name: string;
+    address: string;
+    city: string;
+    state: string;
+    zip: string;
+    isDefault: boolean;
+}
 
 // Profile Section Component
 function ProfileSection() {
     const [isEditing, setIsEditing] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [userData, setUserData] = useState({
+        name: "",
+        email: "",
+        phone: "",
+        joinDate: "",
+    });
+    const [formData, setFormData] = useState({
+        name: "",
+        phone: "",
+    });
 
-    const userInfo = {
-        name: "John Doe",
-        email: "john.doe@example.com",
-        phone: "+1 (555) 123-4567",
-        username: "johndoe",
-        joinDate: "January 2024",
-        avatar: "/images/avatar.jpg",
+    // Fetch user data on component mount
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                const {
+                    data: { user },
+                } = await supabase.auth.getUser();
+
+                if (user) {
+                    const userMetadata = user.user_metadata || {};
+                    const createdAt = new Date(user.created_at);
+
+                    setUserData({
+                        name:
+                            userMetadata.name ||
+                            user.email?.split("@")[0] ||
+                            "User",
+                        email: user.email || "",
+                        phone: userMetadata.phone || "",
+                        joinDate: createdAt.toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "long",
+                        }),
+                    });
+
+                    setFormData({
+                        name:
+                            userMetadata.name ||
+                            user.email?.split("@")[0] ||
+                            "User",
+                        phone: userMetadata.phone || "",
+                    });
+                }
+            } catch {
+                toast.error("Error: Failed to fetch user data.");
+            }
+        };
+
+        fetchUserData();
+    }, []);
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({ ...prev, [name]: value }));
+    };
+
+    const handleSaveChanges = async () => {
+        setIsLoading(true);
+        try {
+            const result = await supabase.auth.updateUser({
+                data: {
+                    name: formData.name,
+                    phone: formData.phone,
+                },
+            });
+            if (result.error) {
+                toast.error(
+                    "Error updating profile: " + result.error.message + "."
+                );
+            } else {
+                setUserData((prev) => ({
+                    ...prev,
+                    name: formData.name,
+                    phone: formData.phone,
+                }));
+                setIsEditing(false);
+                toast.success("Profile updated successfully.");
+            }
+        } catch {
+            toast.error("Error updating profile.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleCancel = () => {
+        setFormData({
+            name: userData.name,
+            phone: userData.phone,
+        });
+        setIsEditing(false);
     };
 
     return (
@@ -69,7 +173,7 @@ function ProfileSection() {
                     <div className="flex flex-col items-center space-y-3">
                         <div className="relative">
                             <div className="w-20 h-20 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center text-2xl font-bold text-primary-foreground">
-                                {userInfo.name.charAt(0)}
+                                {userData.name.charAt(0)}
                             </div>
                             {isEditing && (
                                 <Button
@@ -81,10 +185,10 @@ function ProfileSection() {
                         </div>
                         <div className="text-center">
                             <h3 className="text-base font-semibold">
-                                {userInfo.name}
+                                {userData.name}
                             </h3>
                             <p className="text-muted-foreground text-xs">
-                                Member since {userInfo.joinDate}
+                                Member since {userData.joinDate}
                             </p>
                         </div>
                     </div>
@@ -104,30 +208,15 @@ function ProfileSection() {
                             </p>
                             <Input
                                 id="name"
-                                value={userInfo.name}
+                                name="name"
+                                value={
+                                    isEditing ? formData.name : userData.name
+                                }
+                                onChange={handleInputChange}
                                 disabled={!isEditing}
                                 className="text-sm h-9 !p-6"
                             />
                         </div>
-                        <div>
-                            <Label
-                                htmlFor="username"
-                                className="text-sm font-semibold mb-1 block">
-                                Username
-                            </Label>
-                            <p className="text-xs text-muted-foreground mb-2">
-                                Your unique identifier for login
-                            </p>
-                            <Input
-                                id="username"
-                                value={userInfo.username}
-                                disabled={!isEditing}
-                                className="text-sm h-9 !p-6"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <Label
                                 htmlFor="email"
@@ -140,11 +229,14 @@ function ProfileSection() {
                             <Input
                                 id="email"
                                 type="email"
-                                value={userInfo.email}
-                                disabled={!isEditing}
+                                value={userData.email}
+                                disabled={true}
                                 className="text-sm h-9 !p-6"
                             />
                         </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <Label
                                 htmlFor="phone"
@@ -156,7 +248,11 @@ function ProfileSection() {
                             </p>
                             <Input
                                 id="phone"
-                                value={userInfo.phone}
+                                name="phone"
+                                value={
+                                    isEditing ? formData.phone : userData.phone
+                                }
+                                onChange={handleInputChange}
                                 disabled={!isEditing}
                                 className="text-sm h-9 !p-6"
                             />
@@ -164,15 +260,27 @@ function ProfileSection() {
                     </div>
 
                     {isEditing && (
-                        <div className="flex gap-3 pt-3">
-                            <Button className="!p-6 rounded-full bg-foreground hover:bg-foreground/90 text-background text-sm">
-                                <CheckIcon className="w-3 h-3 mr-2" />
-                                Save Changes
+                        <div className="flex flex-col sm:flex-row gap-3 pt-3">
+                            <Button
+                                onClick={handleSaveChanges}
+                                disabled={isLoading}
+                                className="!p-6 rounded-full bg-foreground hover:bg-foreground/90 text-background text-sm sm:w-auto w-full">
+                                {isLoading ? (
+                                    <div className="flex items-center space-x-2">
+                                        <div className="w-3 h-3 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin"></div>
+                                        <span>Saving...</span>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <CheckIcon className="w-3 h-3 mr-2" />
+                                        Save Changes
+                                    </>
+                                )}
                             </Button>
                             <Button
-                                onClick={() => setIsEditing(!isEditing)}
+                                onClick={handleCancel}
                                 variant="outline"
-                                className="!p-6 rounded-full hover:bg-destructive hover:text-background text-sm">
+                                className="!p-6 rounded-full hover:bg-foreground hover:text-background text-sm sm:w-auto w-full">
                                 <XIcon className="w-3 h-3 mr-2" />
                                 Cancel
                             </Button>
@@ -193,14 +301,10 @@ function ProfileSection() {
 
             <div className="space-y-4">
                 <Button
-                    className="w-full text-sm h-12 rounded-full hover:bg-foreground hover:text-background"
-                    variant="outline">
+                    onClick={logOut}
+                    className="w-full text-sm !p-6 rounded-full bg-foreground hover:bg-foreground/90 sm:w-min hover:text-background">
                     <SignOutIcon className="w-4 h-4 mr-2" />
                     Sign Out
-                </Button>
-                <Button className="w-full text-sm h-12 rounded-full bg-foreground hover:bg-destructive">
-                    <TrashIcon className="w-4 h-4 mr-2" />
-                    Delete Account
                 </Button>
             </div>
         </motion.div>
@@ -209,26 +313,141 @@ function ProfileSection() {
 
 // Address Book Section Component
 function AddressBookSection() {
-    const addresses = [
-        {
-            id: 1,
-            name: "Home",
-            address: "123 Main St, Apt 4B",
-            city: "New York",
-            state: "NY",
-            zip: "10001",
-            isDefault: true,
-        },
-        {
-            id: 2,
-            name: "Work",
-            address: "456 Business Ave, Suite 200",
-            city: "New York",
-            state: "NY",
-            zip: "10002",
-            isDefault: false,
-        },
-    ];
+    const [addresses, setAddresses] = useState<Address[]>([] as Address[]);
+    const [loading, setLoading] = useState(true);
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [editIndex, setEditIndex] = useState<number | null>(null);
+    const [form, setForm] = useState<Omit<Address, "id">>({
+        name: "",
+        address: "",
+        city: "",
+        state: "",
+        zip: "",
+        isDefault: false,
+    });
+    const [saving, setSaving] = useState(false);
+
+    // Fetch addresses from user metadata
+    useEffect(() => {
+        const fetchAddresses = async () => {
+            setLoading(true);
+            const {
+                data: { user },
+            } = await supabase.auth.getUser();
+            if (!user) {
+                toast.error("Error: Failed to fetch addresses.");
+                setLoading(false);
+                return;
+            }
+            const userAddresses: Address[] =
+                user.user_metadata?.addresses || [];
+            setAddresses(userAddresses);
+            setLoading(false);
+        };
+        fetchAddresses();
+    }, []);
+
+    // Handle form input
+    const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value, type, checked } = e.target;
+        setForm((prev) => ({
+            ...prev,
+            [name]: type === "checkbox" ? checked : value,
+        }));
+    };
+
+    // Open dialog for add or edit
+    const openDialog = (index: number | null = null) => {
+        if (index !== null) {
+            setForm({
+                name: addresses[index].name,
+                address: addresses[index].address,
+                city: addresses[index].city,
+                state: addresses[index].state,
+                zip: addresses[index].zip,
+                isDefault: addresses[index].isDefault,
+            });
+        } else {
+            setForm({
+                name: "",
+                address: "",
+                city: "",
+                state: "",
+                zip: "",
+                isDefault: false,
+            });
+        }
+        setEditIndex(index);
+        setDialogOpen(true);
+    };
+
+    // Save address (add or edit)
+    const saveAddress = async () => {
+        setSaving(true);
+        let newAddresses = [...addresses];
+        // If setting as default, unset others
+        if (form.isDefault) {
+            newAddresses = newAddresses.map((a) => ({
+                ...a,
+                isDefault: false,
+            }));
+        }
+        if (editIndex !== null) {
+            newAddresses[editIndex] = { ...newAddresses[editIndex], ...form };
+        } else {
+            newAddresses.push({ ...form, id: Date.now() });
+        }
+        // Ensure only one default
+        if (!newAddresses.some((a) => a.isDefault) && newAddresses.length > 0) {
+            newAddresses[0].isDefault = true;
+        }
+        const result = await supabase.auth.updateUser({
+            data: { addresses: newAddresses },
+        });
+        if (result.error) {
+            toast.error("Error saving address.");
+        } else {
+            setAddresses(newAddresses);
+            setDialogOpen(false);
+            toast.success("Address saved.");
+        }
+        setSaving(false);
+    };
+
+    // Delete address
+    const deleteAddress = async (index: number) => {
+        const newAddresses = addresses.filter((_, i) => i !== index);
+        // If default was deleted, set first as default
+        if (!newAddresses.some((a) => a.isDefault) && newAddresses.length > 0) {
+            newAddresses[0].isDefault = true;
+        }
+        const { error } = await supabase.auth.updateUser({
+            data: { addresses: newAddresses },
+        });
+        if (error) {
+            toast.error("Error deleting address.");
+        } else {
+            setAddresses(newAddresses);
+            toast.success("Address deleted.");
+        }
+    };
+
+    // Set default address
+    const setDefault = async (index: number) => {
+        const newAddresses = addresses.map((a, i) => ({
+            ...a,
+            isDefault: i === index,
+        }));
+        const { error } = await supabase.auth.updateUser({
+            data: { addresses: newAddresses },
+        });
+        if (error) {
+            toast.error("Error setting default address.");
+        } else {
+            setAddresses(newAddresses);
+            toast.success("Default address set.");
+        }
+    };
 
     return (
         <motion.div
@@ -246,54 +465,152 @@ function AddressBookSection() {
                     </p>
                 </div>
                 <Button
-                    className="!p-6 rounded-full bg-foreground hover:bg-foreground/90 text-background text-sm">
+                    className="!p-6 rounded-full bg-foreground hover:bg-foreground/90 text-background text-sm"
+                    onClick={() => openDialog(null)}>
                     <PlusIcon className="w-3 h-3 mr-2" />
                     Add Address
                 </Button>
             </div>
-
             <div className="space-y-4">
-                {addresses.map((address) => (
-                    <div
-                        key={address.id}
-                        className="w-full rounded-2xl p-4 border border-border/50">
-                        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 items-start justify-between">
-                            <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <span className="text-base font-semibold">
-                                        {address.name}
-                                    </span>
-                                    {address.isDefault && (
-                                        <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full font-medium">
-                                            Default
+                {loading ? (
+                    <div>Loading...</div>
+                ) : addresses.length === 0 ? (
+                    <div className="text-muted-foreground text-sm">
+                        No addresses yet.
+                    </div>
+                ) : (
+                    addresses.map((address, idx) => (
+                        <div
+                            key={address.id || idx}
+                            className="w-full rounded-2xl p-4 border border-border/50">
+                            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 items-start justify-between">
+                                <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <span className="text-base font-semibold">
+                                            {address.name}
                                         </span>
+                                        {address.isDefault && (
+                                            <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full font-medium">
+                                                Default
+                                            </span>
+                                        )}
+                                    </div>
+                                    <p className="text-muted-foreground text-sm leading-relaxed">
+                                        {address.address}
+                                        <br />
+                                        {address.city}, {address.state}{" "}
+                                        {address.zip}
+                                    </p>
+                                </div>
+                                <div className="flex gap-2 w-full sm:w-auto justify-end sm:justify-start">
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="p-4.5"
+                                        onClick={() => openDialog(idx)}>
+                                        <PencilIcon className="w-4 h-4" />
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="p-4.5"
+                                        onClick={() => deleteAddress(idx)}>
+                                        <XIcon className="w-4 h-4" />
+                                    </Button>
+                                    {!address.isDefault && (
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="p-4.5"
+                                            onClick={() => setDefault(idx)}>
+                                            Set Default
+                                        </Button>
                                     )}
                                 </div>
-                                <p className="text-muted-foreground text-sm leading-relaxed">
-                                    {address.address}
-                                    <br />
-                                    {address.city}, {address.state}{" "}
-                                    {address.zip}
-                                </p>
-                            </div>
-                            <div className="flex gap-2 w-full sm:w-auto justify-end sm:justify-start">
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="p-4.5">
-                                    <PencilIcon className="w-4 h-4" />
-                                </Button>
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="p-4.5">
-                                    <XIcon className="w-4 h-4" />
-                                </Button>
                             </div>
                         </div>
-                    </div>
-                ))}
+                    ))
+                )}
             </div>
+            <Dialog
+                open={dialogOpen}
+                onOpenChange={setDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>
+                            {editIndex !== null
+                                ? "Edit Address"
+                                : "Add Address"}
+                        </DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-3">
+                        <Input
+                            name="name"
+                            placeholder="Label (e.g. Home, Work)"
+                            value={form.name}
+                            onChange={handleFormChange}
+                        />
+                        <Input
+                            name="address"
+                            placeholder="Street Address"
+                            value={form.address}
+                            onChange={handleFormChange}
+                        />
+                        <div className="flex gap-2">
+                            <Input
+                                name="city"
+                                placeholder="City"
+                                value={form.city}
+                                onChange={handleFormChange}
+                            />
+                            <Input
+                                name="state"
+                                placeholder="State"
+                                value={form.state}
+                                onChange={handleFormChange}
+                            />
+                            <Input
+                                name="zip"
+                                placeholder="ZIP"
+                                value={form.zip}
+                                onChange={handleFormChange}
+                            />
+                        </div>
+                        <label className="flex items-center gap-2 text-sm">
+                            <Checkbox
+                                name="isDefault"
+                                checked={form.isDefault}
+                                onCheckedChange={(checked) =>
+                                    handleFormChange({
+                                        target: {
+                                            name: "isDefault",
+                                            value: checked,
+                                            type: "checkbox",
+                                            checked: checked,
+                                        },
+                                    } as React.ChangeEvent<HTMLInputElement>)
+                                }
+                            />
+                            Set as default address
+                        </label>
+                    </div>
+                    <DialogFooter className="!flex-col">
+                        <Button
+                            onClick={saveAddress}
+                            disabled={saving}
+                            className="w-full !p-6 rounded-full bg-foreground hover:bg-foreground/90">
+                            {saving ? "Saving..." : "Save Address"}
+                        </Button>
+                        <DialogClose asChild>
+                            <Button
+                                variant="outline"
+                                className="w-full hover:bg-foreground hover:text-background !p-6 rounded-full">
+                                Cancel
+                            </Button>
+                        </DialogClose>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </motion.div>
     );
 }
@@ -384,7 +701,6 @@ function OrderHistorySection() {
 
 // Payment Methods Section Component
 function PaymentMethodsSection() {
-
     const paymentMethods = [
         {
             id: 1,
@@ -417,8 +733,7 @@ function PaymentMethodsSection() {
                         Manage your saved payment methods and billing info
                     </p>
                 </div>
-                <Button
-                    className="!p-6 rounded-full bg-foreground hover:bg-foreground/90 text-background text-sm">
+                <Button className="!p-6 rounded-full bg-foreground hover:bg-foreground/90 text-background text-sm">
                     <PlusIcon className="w-3 h-3 mr-2" />
                     Add Payment Method
                 </Button>

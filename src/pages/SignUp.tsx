@@ -10,6 +10,7 @@ import {
     EnvelopeIcon,
     EyeIcon,
     UserIcon,
+    PhoneIcon,
 } from "@phosphor-icons/react";
 import { CheckedState } from "@radix-ui/react-checkbox";
 import { Link } from "wouter";
@@ -22,6 +23,7 @@ export default function SignUp() {
     const [formData, setFormData] = useState({
         name: "",
         email: "",
+        phone: "",
         password: "",
         confirmPassword: "",
     });
@@ -33,9 +35,9 @@ export default function SignUp() {
     const [step, setStep] = useState(1);
 
     useEffect(() => {
-        checkUser("return").then((isLoggedIn) => {
-            if (isLoggedIn) {
-                navigate("/home");
+        checkUser("return").then((isSignedUp) => {
+            if (isSignedUp) {
+                navigate("/login");
             } else {
                 setChecking(false);
             }
@@ -61,6 +63,13 @@ export default function SignUp() {
             newErrors.email = "Email is required";
         } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
             newErrors.email = "Please enter a valid email";
+        }
+        if (!formData.phone) {
+            newErrors.phone = "Phone number is required";
+        } else if (
+            !/^\d{11}$/.test(formData.phone.replace(/\s/g, ""))
+        ) {
+            newErrors.phone = "Please enter a valid phone number";
         }
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -105,6 +114,12 @@ export default function SignUp() {
         const { error } = await supabase.auth.signUp({
             email: formData.email,
             password: formData.confirmPassword,
+            options: {
+                data: {
+                    name: formData.name,
+                    phone: formData.phone,
+                },
+            },
         });
 
         if (error) {
@@ -220,6 +235,36 @@ export default function SignUp() {
                                 {errors.email && (
                                     <p className="text-sm text-destructive">
                                         {errors.email}
+                                    </p>
+                                )}
+                            </div>
+                            {/* Phone Field */}
+                            <div className="space-y-2">
+                                <Label
+                                    htmlFor="phone"
+                                    className="text-foreground">
+                                    Phone
+                                </Label>
+                                <div className="relative">
+                                    <PhoneIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
+                                    <Input
+                                        id="phone"
+                                        name="phone"
+                                        type="tel"
+                                        placeholder="Enter your phone number"
+                                        value={formData.phone}
+                                        onChange={handleInputChange}
+                                        className={`pl-10 ${
+                                            errors.phone
+                                                ? "border-destructive focus-visible:ring-destructive/50"
+                                                : ""
+                                        }`}
+                                        disabled={isLoading}
+                                    />
+                                </div>
+                                {errors.phone && (
+                                    <p className="text-sm text-destructive">
+                                        {errors.phone}
                                     </p>
                                 )}
                             </div>
