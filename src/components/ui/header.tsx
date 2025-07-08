@@ -10,6 +10,9 @@ import {
     SignOutIcon,
     ArrowLeftIcon,
     MapPinIcon,
+    ChartLineIcon,
+    StorefrontIcon,
+    UsersIcon,
 } from "@phosphor-icons/react";
 import {
     NavigationMenu,
@@ -26,7 +29,8 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Link, useLocation, useSearchParams } from "wouter";
-import { checkUser, logOut } from "@/supabase";
+import { navigate } from "wouter/use-browser-location";
+import { checkUser, logOut, supabase } from "@/supabase";
 import { Button } from "./button";
 import { cn } from "@/lib/utils";
 
@@ -47,7 +51,7 @@ function useUserSession() {
 }
 
 interface HeaderProps {
-    variant?: "default" | "account";
+    variant?: "default" | "account" | "admin";
 }
 
 export default function Header({ variant = "default" }: HeaderProps) {
@@ -115,6 +119,14 @@ export default function Header({ variant = "default" }: HeaderProps) {
         const newPath = newQuery ? `?${newQuery}` : "";
         setLocation(`/account${newPath}`);
     };
+
+    // Admin sections for admin variant
+    const adminSections = [
+        { id: "dashboard", name: "Dashboard", icon: ChartLineIcon },
+        { id: "products", name: "Products", icon: PackageIcon },
+        { id: "orders", name: "Orders", icon: StorefrontIcon },
+        { id: "customers", name: "Customers", icon: UsersIcon },
+    ];
 
     // Account variant header
     if (variant === "account") {
@@ -301,6 +313,188 @@ export default function Header({ variant = "default" }: HeaderProps) {
                                             )}
                                         </div>
                                     </div>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
+            </motion.header>
+        );
+    }
+
+    // Admin variant header
+    if (variant === "admin") {
+        const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+        useEffect(() => {
+            (async () => {
+                const { data, error } = await supabase.auth.getUser();
+                if (error || !data?.user?.user_metadata?.admin) {
+                    navigate("/home");
+                } else {
+                    setIsAdmin(true);
+                }
+            })();
+        }, []);
+        if (!isAdmin) return null;
+        return (
+            <motion.header
+                className="sticky top-0 left-0 right-0 z-50 bg-background px-4 sm:px-8 xl:px-32"
+                initial={{ y: -100 }}
+                animate={{ y: 0 }}
+                transition={{ duration: 0.6, ease: "easeOut" }}>
+                <div className="p-4 sm:p-6 lg:p-8">
+                    <div className="flex justify-between items-center h-16">
+                        {/* Logo Section */}
+                        <motion.div
+                            className="flex items-center"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}>
+                            <Link to="/account">
+                                <motion.button
+                                    className="p-2 rounded-full hover:bg-destructive/10 transition-colors mr-3"
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}>
+                                    <ArrowLeftIcon className="w-5 h-5 text-destructive" />
+                                </motion.button>
+                            </Link>
+                            <motion.div
+                                className="w-6 h-6 bg-destructive rounded-lg flex items-center justify-center"
+                                animate={{ rotate: [0, 360] }}
+                                transition={{
+                                    duration: 20,
+                                    repeat: Infinity,
+                                    ease: "linear",
+                                }}>
+                                <span className="text-destructive-foreground font-bold text-sm">
+                                    A
+                                </span>
+                            </motion.div>
+                            <span className="ml-2 text-xl sm:text-2xl xl:text-3xl font-bold bg-gradient-to-r from-destructive to-destructive/80 bg-clip-text text-transparent">
+                                FluxOasis
+                            </span>
+                            <span className="ml-2 text-xs text-muted-foreground font-medium hidden sm:inline">
+                                Admin Panel
+                            </span>
+                        </motion.div>
+                        {/* Admin Navigation Menu */}
+                        <NavigationMenu className="hidden xl:flex">
+                            <NavigationMenuList className="space-x-2 bg-muted p-2 rounded-full">
+                                {adminSections.map((section, index) => {
+                                    const Icon = section.icon;
+                                    return (
+                                        <NavigationMenuItem
+                                            key={section.id}
+                                            className="hover:bg-transparent">
+                                            <motion.div
+                                                initial={{ opacity: 0, y: -20 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                transition={{
+                                                    duration: 0.5,
+                                                    delay: 0.1 + index * 0.1,
+                                                }}>
+                                                <Link
+                                                    to={`/admin?section=${section.id}`}
+                                                    className={cn(
+                                                        "text-xs font-medium flex items-center transition-colors duration-200 p-2 px-3 rounded-full",
+                                                        (searchParams.get(
+                                                            "section"
+                                                        ) || "dashboard") ===
+                                                            section.id
+                                                            ? "bg-destructive text-destructive-foreground"
+                                                            : "text-foreground hover:bg-destructive hover:text-destructive-foreground"
+                                                    )}>
+                                                    <Icon className="w-4 h-4 mr-2" />
+                                                    <span>{section.name}</span>
+                                                </Link>
+                                            </motion.div>
+                                        </NavigationMenuItem>
+                                    );
+                                })}
+                            </NavigationMenuList>
+                        </NavigationMenu>
+                        {/* Mobile Menu Button */}
+                        <motion.button
+                            className="xl:hidden p-2 rounded-lg hover:bg-destructive/10 transition-colors"
+                            onClick={() => {
+                                setIsMenuOpen(!isMenuOpen);
+                                setCurrentScroll(window.scrollY);
+                            }}
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}>
+                            <AnimatePresence mode="wait">
+                                {isMenuOpen ? (
+                                    <motion.div
+                                        key="close"
+                                        initial={{ rotate: -90, opacity: 0 }}
+                                        animate={{ rotate: 0, opacity: 1 }}
+                                        exit={{ rotate: 90, opacity: 0 }}
+                                        transition={{ duration: 0.2 }}>
+                                        <XIcon
+                                            className="w-8 h-8 text-destructive"
+                                            weight="regular"
+                                        />
+                                    </motion.div>
+                                ) : (
+                                    <motion.div
+                                        key="menu"
+                                        initial={{ rotate: 90, opacity: 0 }}
+                                        animate={{ rotate: 0, opacity: 1 }}
+                                        exit={{ rotate: -90, opacity: 0 }}
+                                        transition={{ duration: 0.2 }}>
+                                        <ListIcon
+                                            className="w-8 h-8 text-destructive"
+                                            weight="regular"
+                                        />
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </motion.button>
+                    </div>
+                    {/* Mobile Menu */}
+                    <AnimatePresence>
+                        {isMenuOpen && (
+                            <motion.div
+                                className="xl:hidden"
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: "100dvh" }}
+                                exit={{ opacity: 0, height: 0 }}
+                                transition={{
+                                    duration: 0.3,
+                                    ease: "easeInOut",
+                                }}>
+                                <div className="py-4 space-y-2 border-t border-border">
+                                    {adminSections.map((section, index) => {
+                                        const Icon = section.icon;
+                                        return (
+                                            <motion.div
+                                                key={section.id}
+                                                initial={{ opacity: 0, x: -20 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                exit={{ opacity: 0, x: -20 }}
+                                                transition={{
+                                                    duration: 0.3,
+                                                    delay: 0.1 + index * 0.1,
+                                                }}
+                                                onClick={() =>
+                                                    setIsMenuOpen(false)
+                                                }>
+                                                <Link
+                                                    to={`/admin?section=${section.id}`}
+                                                    className={cn(
+                                                        "w-full flex items-center space-x-4 p-6 text-destructive text-sm hover:bg-destructive/10 font-bold rounded-full transition-colors duration-200",
+                                                        (searchParams.get(
+                                                            "section"
+                                                        ) || "dashboard") ===
+                                                            section.id
+                                                            ? "bg-destructive text-destructive-foreground hover:bg-destructive"
+                                                            : ""
+                                                    )}>
+                                                    <Icon className="w-5 h-5" />
+                                                    <span>{section.name}</span>
+                                                </Link>
+                                            </motion.div>
+                                        );
+                                    })}
                                 </div>
                             </motion.div>
                         )}

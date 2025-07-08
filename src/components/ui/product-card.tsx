@@ -1,13 +1,11 @@
-import { StarIcon, ShoppingCartIcon } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
+import { ArrowRightIcon } from "@phosphor-icons/react";
 
 interface ProductCardProps {
     id: number;
     name: string;
     price: number;
     image: string;
-    rating: number;
-    reviews: number;
 }
 
 export default function ProductCard({
@@ -15,75 +13,39 @@ export default function ProductCard({
     name,
     price,
     image,
-    rating,
-    reviews,
 }: ProductCardProps) {
     return (
         <div
-            className="group relative bg-background rounded-xl overflow-hidden border border-border/20 hover:border-border/40 transition-all duration-300"
+            className="relative bg-background rounded-4xl overflow-hidden border border-border/50 transition-all duration-200"
             id={id.toString()}>
             {/* Product Image Container */}
-            <div className="relative h-48 sm:h-56 overflow-hidden bg-gradient-to-br from-muted/20 to-muted/10">
+            <div className="relative h-48 p-4 sm:h-56 overflow-hidden lex items-center justify-center">
                 <img
                     src={image}
                     alt={name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    className="w-full h-full object-cover bg-muted rounded-3xl transition-transform duration-300"
                 />
-
-                {/* Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-background/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-                {/* Rating Badge */}
-                <div className="absolute top-3 left-3 bg-background/90 backdrop-blur-sm rounded-full px-2 py-1 flex items-center gap-1 border border-border/20">
-                    <StarIcon
-                        weight="fill"
-                        className="w-3 h-3 text-yellow-500"
-                    />
-                    <span className="text-xs font-medium text-foreground">
-                        {rating}
-                    </span>
-                </div>
             </div>
-
             {/* Product Content */}
-            <div className="p-4">
-                {/* Product Name */}
-                <h3 className="font-semibold text-foreground text-base mb-1 group-hover:text-primary transition-colors duration-200">
+            <div className="p-5 py-2 flex flex-col">
+                <h3 className="font-bold text-foreground text-xl transition-colors duration-200 line-clamp-2">
                     {name}
                 </h3>
-
-                {/* Reviews */}
-                <p className="text-xs text-muted-foreground mb-3">
-                    {reviews} reviews
-                </p>
-
-                {/* Price and Add to Cart */}
-                <div className="flex items-center justify-between">
-                    <div className="flex flex-col">
-                        <span className="text-xl font-bold text-primary">
-                            ${price}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                            Free delivery
-                        </span>
-                    </div>
-
-                    {/* Add to Cart Button */}
+                <div className="flex flex-col gap-4 justify-between">
+                    <span className="font-light tracking-wide text-base">
+                        ₦ {price.toFixed(2)}
+                    </span>
                     <Button
                         onClick={() => {
                             // Add to cart functionality
                             console.log(`Added ${name} to cart`);
-                            // You can implement actual cart functionality here
                         }}
-                        className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full !p-4 transition-all duration-200">
-                        <ShoppingCartIcon className="w-5 h-5 mr-1" />
-                        Add
+                        className="bg-foreground !p-6 w-full hover:bg-foreground/90 text-primary-foreground rounded-full px-5 py-2 text-sm font-semibold transition-all duration-200 shadow-none">
+                        Buy Now
+                        <ArrowRightIcon />
                     </Button>
                 </div>
             </div>
-
-            {/* Hover Glow Effect */}
-            <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
         </div>
     );
 }

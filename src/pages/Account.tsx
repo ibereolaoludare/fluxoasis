@@ -31,6 +31,14 @@ import {
     DialogClose,
     DialogDescription,
 } from "@/components/ui/dialog";
+import { Link } from "wouter";
+import {
+    Select,
+    SelectTrigger,
+    SelectValue,
+    SelectContent,
+    SelectItem,
+} from "@/components/ui/select";
 
 // Add Address type
 interface Address {
@@ -57,6 +65,7 @@ function ProfileSection() {
         name: "",
         phone: "",
     });
+    const [role, setRole] = useState<string>("user");
 
     // Fetch user data on component mount
     useEffect(() => {
@@ -90,6 +99,7 @@ function ProfileSection() {
                             "User",
                         phone: userMetadata.phone || "",
                     });
+                    setRole(userMetadata.role || "user");
                 }
             } catch {
                 toast.error("Error: Failed to fetch user data.");
@@ -141,6 +151,30 @@ function ProfileSection() {
         setIsEditing(false);
     };
 
+    const handleRoleChange = async (newRole: string) => {
+        setIsLoading(true);
+        try {
+            const result = await supabase.auth.updateUser({
+                data: {
+                    ...formData,
+                    role: newRole,
+                },
+            });
+            if (result.error) {
+                toast.error(
+                    "Error updating role: " + result.error.message + "."
+                );
+            } else {
+                setRole(newRole);
+                toast.success(`Role updated to ${newRole}.`);
+            }
+        } catch {
+            toast.error("Error updating role.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     return (
         <motion.div
             className="w-full rounded-2xl p-8 space-y-12"
@@ -156,16 +190,30 @@ function ProfileSection() {
                         Manage your personal information and account details
                     </p>
                 </div>
-                <Button
-                    onClick={() => setIsEditing(!isEditing)}
-                    className="!p-6 rounded-full bg-foreground hover:bg-foreground/90 text-background text-sm">
-                    {isEditing ? (
-                        <XIcon className="w-3 h-3 mr-2" />
-                    ) : (
-                        <PencilIcon className="w-3 h-3 mr-2" />
-                    )}
-                    {isEditing ? "Cancel" : "Edit Profile"}
-                </Button>
+                <div className="flex gap-2 items-center">
+                    <Button
+                        onClick={() => setIsEditing(!isEditing)}
+                        className="!p-6 rounded-full bg-foreground hover:bg-foreground/90 text-background text-sm">
+                        {isEditing ? (
+                            <XIcon className="w-3 h-3 mr-2" />
+                        ) : (
+                            <PencilIcon className="w-3 h-3 mr-2" />
+                        )}
+                        {isEditing ? "Cancel" : "Edit Profile"}
+                    </Button>
+                    <Select
+                        value={role}
+                        onValueChange={handleRoleChange}>
+                        <SelectTrigger className="rounded-full text-xs px-4 py-2 w-36">
+                            <SelectValue placeholder="Select role" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="user">User</SelectItem>
+                            <SelectItem value="admin">Admin</SelectItem>
+                            <SelectItem value="developer">Developer</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -949,6 +997,13 @@ export default function Account() {
                 <div className="px-4 sm:px-8 xl:px-32">
                     {/* Main Content Area */}
                     <ActiveComponent />
+                    <div className="flex justify-end mt-8">
+                        <Link
+                            to="/admin"
+                            className="text-xs text-muted-foreground opacity-40 hover:opacity-70 transition-opacity underline">
+                            Admin?
+                        </Link>
+                    </div>
                 </div>
             </div>
         </div>

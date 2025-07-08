@@ -16,9 +16,10 @@ import SignUp from "./pages/SignUp";
 import LogIn from "./pages/LogIn";
 import { Toaster } from "./components/ui/sonner";
 import Account from "./pages/Account";
+import Admin from "./pages/Admin";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const urlPaths = ["home", "shop", "about", "contact", "account", "signup", "login"] as const; // update this array to add more url paths
+const urlPaths = ["home", "shop", "about", "contact", "account", "admin", "signup", "login"] as const; // update this array to add more url paths
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
         <Route path="/about" component={About} />
         <Route path="/contact" component={Contact} />
         <Route path="/account" component={Account} />
+        <Route path="/admin" component={Admin} />
         <Route path="/signup" component={SignUp} />
         <Route path="/login" component={LogIn} />
         <WouterRoute component={NotFound} />

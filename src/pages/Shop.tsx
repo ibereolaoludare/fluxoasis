@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,12 +18,29 @@ import {
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
 import ProductCard from "@/components/ui/product-card";
+import { supabase } from "@/supabase";
+import type { Tables } from "@/supabase.type";
 
 export default function Shop() {
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("All");
     const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
     const [sortBy, setSortBy] = useState("featured");
+    const [products, setProducts] = useState<Tables<"products">[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    // Fetch products from Supabase
+    useEffect(() => {
+        (async () => {
+            setLoading(true);
+            const { data, error } = await supabase
+                .from("products")
+                .select("*")
+                .order("id", { ascending: true });
+            if (!error && data) setProducts(data);
+            setLoading(false);
+        })();
+    }, []);
 
     const categories = [
         { id: "All", name: "All Products", count: 120 },
@@ -32,129 +49,6 @@ export default function Shop() {
         { id: "Juice", name: "Juice", count: 30 },
         { id: "Water", name: "Water", count: 15 },
         { id: "Mixes", name: "Mixes", count: 5 },
-    ];
-
-    const products = [
-        {
-            id: 1,
-            name: "Coca Cola Classic",
-            price: 2.99,
-            image: "https://images.unsplash.com/photo-1527960471264-932f39eb5846?q=80&w=2340&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-            rating: 4.8,
-            reviews: 124,
-            category: "Soft Drinks",
-            inStock: true,
-        },
-        {
-            id: 2,
-            name: "Pepsi Max",
-            price: 2.49,
-            image: "https://images.unsplash.com/photo-1622543925917-763c34d1a86e?q=80&w=987&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-            rating: 4.6,
-            reviews: 89,
-            category: "Soft Drinks",
-            inStock: true,
-        },
-        {
-            id: 3,
-            name: "Fanta Orange",
-            price: 2.79,
-            image: "https://plus.unsplash.com/premium_photo-1667543228378-ec4478ab2845?q=80&w=2344&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-            rating: 4.7,
-            reviews: 156,
-            category: "Soft Drinks",
-            inStock: true,
-        },
-        {
-            id: 4,
-            name: "Sprite Lemon",
-            price: 2.59,
-            image: "https://images.unsplash.com/photo-1616118132534-381148898bb4?q=80&w=1364&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-            rating: 4.5,
-            reviews: 67,
-            category: "Soft Drinks",
-            inStock: true,
-        },
-        {
-            id: 5,
-            name: "Red Bull Energy",
-            price: 3.99,
-            image: "https://images.unsplash.com/photo-1622543925917-763c34d1a86e?q=80&w=987&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-            rating: 4.9,
-            reviews: 203,
-            category: "Energy",
-            inStock: true,
-        },
-        {
-            id: 6,
-            name: "Monster Energy",
-            price: 3.49,
-            image: "https://images.unsplash.com/photo-1527960471264-932f39eb5846?q=80&w=2340&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-            rating: 4.7,
-            reviews: 178,
-            category: "Energy",
-            inStock: true,
-        },
-        {
-            id: 7,
-            name: "Orange Juice",
-            price: 4.99,
-            image: "https://plus.unsplash.com/premium_photo-1667543228378-ec4478ab2845?q=80&w=2344&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-            rating: 4.8,
-            reviews: 92,
-            category: "Juice",
-            inStock: true,
-        },
-        {
-            id: 8,
-            name: "Apple Juice",
-            price: 4.49,
-            image: "https://images.unsplash.com/photo-1616118132534-381148898bb4?q=80&w=1364&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-            rating: 4.6,
-            reviews: 78,
-            category: "Juice",
-            inStock: true,
-        },
-        {
-            id: 9,
-            name: "Sparkling Water",
-            price: 1.99,
-            image: "https://images.unsplash.com/photo-1616118132534-381148898bb4?q=80&w=1364&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-            rating: 4.4,
-            reviews: 45,
-            category: "Water",
-            inStock: true,
-        },
-        {
-            id: 10,
-            name: "Lemonade Mix",
-            price: 3.29,
-            image: "https://images.unsplash.com/photo-1527960471264-932f39eb5846?q=80&w=2340&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-            rating: 4.5,
-            reviews: 34,
-            category: "Mixes",
-            inStock: true,
-        },
-        {
-            id: 11,
-            name: "Dr Pepper",
-            price: 2.89,
-            image: "https://images.unsplash.com/photo-1622543925917-763c34d1a86e?q=80&w=987&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-            rating: 4.7,
-            reviews: 156,
-            category: "Soft Drinks",
-            inStock: true,
-        },
-        {
-            id: 12,
-            name: "Mountain Dew",
-            price: 2.69,
-            image: "https://plus.unsplash.com/premium_photo-1667543228378-ec4478ab2845?q=80&w=2344&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-            rating: 4.6,
-            reviews: 89,
-            category: "Soft Drinks",
-            inStock: true,
-        },
     ];
 
     // Filter products based on search and category
@@ -175,7 +69,7 @@ export default function Shop() {
             case "price-high":
                 return b.price - a.price;
             case "rating":
-                return b.rating - a.rating;
+                return (b.ratings || 0) - (a.ratings || 0);
             case "name":
                 return a.name.localeCompare(b.name);
             default:
@@ -240,11 +134,6 @@ export default function Shop() {
                                         }
                                         className="rounded-full shadow-none px-4 py-2 text-sm transition-all duration-200">
                                         {category.name}
-                                        <Badge
-                                            variant="default"
-                                            className="ml-2 text-xs">
-                                            {category.count}
-                                        </Badge>
                                     </Button>
                                 ))}
                             </div>
@@ -341,46 +230,63 @@ export default function Shop() {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ duration: 0.6, delay: 0.6 }}>
-                            {sortedProducts.map((product, index) => (
-                                <motion.div
-                                    key={product.id}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{
-                                        duration: 0.5,
-                                        delay: 0.8 + index * 0.1,
-                                    }}>
-                                    <ProductCard {...product} />
-                                </motion.div>
-                            ))}
-                        </motion.div>
-
-                        {/* No Results */}
-                        {sortedProducts.length === 0 && (
-                            <motion.div
-                                className="text-center py-16"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ duration: 0.6 }}>
-                                <div className="w-16 h-16 mx-auto mb-4 bg-muted rounded-full flex items-center justify-center">
-                                    <MagnifyingGlassIcon className="w-8 h-8 text-muted-foreground" />
+                            {loading ? (
+                                <div className="text-center text-muted-foreground py-16 col-span-full">
+                                    Loading products...
                                 </div>
-                                <h3 className="text-xl font-semibold text-foreground mb-2">
-                                    No products found
-                                </h3>
-                                <p className="text-muted-foreground mb-6">
-                                    Try adjusting your search or filter criteria
-                                </p>
-                                <Button
-                                    onClick={() => {
-                                        setSearchQuery("");
-                                        setSelectedCategory("All");
-                                    }}
-                                    variant="outline">
-                                    Clear Filters
-                                </Button>
-                            </motion.div>
-                        )}
+                            ) : sortedProducts.length === 0 ? (
+                                <motion.div
+                                    className="text-center py-16 col-span-full"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ duration: 0.6 }}>
+                                    <div className="w-16 h-16 mx-auto mb-4 bg-muted rounded-full flex items-center justify-center">
+                                        <MagnifyingGlassIcon className="w-8 h-8 text-muted-foreground" />
+                                    </div>
+                                    <h3 className="text-xl font-semibold text-foreground mb-2">
+                                        No products found
+                                    </h3>
+                                    <p className="text-muted-foreground mb-6">
+                                        Try adjusting your search or filter
+                                        criteria
+                                    </p>
+                                    <Button
+                                        onClick={() => {
+                                            setSearchQuery("");
+                                            setSelectedCategory("All");
+                                        }}
+                                        variant="outline">
+                                        Clear Filters
+                                    </Button>
+                                </motion.div>
+                            ) : (
+                                sortedProducts.map((product, index) => (
+                                    <motion.div
+                                        key={product.id}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{
+                                            duration: 0.5,
+                                            delay: 0.8 + index * 0.1,
+                                        }}>
+                                        <ProductCard
+                                            id={product.id}
+                                            name={product.name}
+                                            price={product.price}
+                                            image={
+                                                (product as any).image ||
+                                                `${
+                                                    import.meta.env
+                                                        .VITE_SUPABASE_URL
+                                                }/storage/v1/object/public/products/images/${
+                                                    product.id
+                                                }.jpg`
+                                            }
+                                        />
+                                    </motion.div>
+                                ))
+                            )}
+                        </motion.div>
                     </div>
                 </section>
             </main>
