@@ -29,6 +29,7 @@ import {
     DialogTitle,
     DialogFooter,
     DialogClose,
+    DialogDescription,
 } from "@/components/ui/dialog";
 
 // Add Address type
@@ -473,7 +474,9 @@ function AddressBookSection() {
             </div>
             <div className="space-y-4">
                 {loading ? (
-                    <div>Loading...</div>
+                    <div className="text-muted-foreground text-sm">
+                        Loading...
+                    </div>
                 ) : addresses.length === 0 ? (
                     <div className="text-muted-foreground text-sm">
                         No addresses yet.
@@ -542,6 +545,11 @@ function AddressBookSection() {
                                 ? "Edit Address"
                                 : "Add Address"}
                         </DialogTitle>
+                        <DialogDescription>
+                            {editIndex !== null
+                                ? "Update the details for this address."
+                                : "Add a new delivery address to your account. You can set one as your default for faster checkout."}
+                        </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-3">
                         <Input
@@ -599,13 +607,23 @@ function AddressBookSection() {
                             onClick={saveAddress}
                             disabled={saving}
                             className="w-full !p-6 rounded-full bg-foreground hover:bg-foreground/90">
-                            {saving ? "Saving..." : "Save Address"}
+                            {saving ? (
+                                <>
+                                    <CheckIcon className="w-4 h-4 mr-2" />{" "}
+                                    Saving...
+                                </>
+                            ) : (
+                                <>
+                                    <CheckIcon className="w-4 h-4 mr-2" /> Save
+                                    Address
+                                </>
+                            )}
                         </Button>
                         <DialogClose asChild>
                             <Button
                                 variant="outline"
                                 className="w-full hover:bg-foreground hover:text-background !p-6 rounded-full">
-                                Cancel
+                                <XIcon className="w-4 h-4 mr-2" /> Cancel
                             </Button>
                         </DialogClose>
                     </DialogFooter>
