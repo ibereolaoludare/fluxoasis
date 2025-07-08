@@ -11,7 +11,6 @@ import {
     GearIcon,
     ArrowLeftIcon,
     MapPinIcon,
-    CoffeeIcon,
 } from "@phosphor-icons/react";
 import {
     NavigationMenu,

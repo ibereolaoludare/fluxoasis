@@ -209,8 +209,6 @@ function ProfileSection() {
 
 // Address Book Section Component
 function AddressBookSection() {
-    const [showAddAddress, setShowAddAddress] = useState(false);
-
     const addresses = [
         {
             id: 1,
@@ -248,7 +246,6 @@ function AddressBookSection() {
                     </p>
                 </div>
                 <Button
-                    onClick={() => setShowAddAddress(true)}
                     className="!p-6 rounded-full bg-foreground hover:bg-foreground/90 text-background text-sm">
                     <PlusIcon className="w-3 h-3 mr-2" />
                     Add Address
@@ -387,7 +384,6 @@ function OrderHistorySection() {
 
 // Payment Methods Section Component
 function PaymentMethodsSection() {
-    const [showAddPayment, setShowAddPayment] = useState(false);
 
     const paymentMethods = [
         {
@@ -422,7 +418,6 @@ function PaymentMethodsSection() {
                     </p>
                 </div>
                 <Button
-                    onClick={() => setShowAddPayment(true)}
                     className="!p-6 rounded-full bg-foreground hover:bg-foreground/90 text-background text-sm">
                     <PlusIcon className="w-3 h-3 mr-2" />
                     Add Payment Method
