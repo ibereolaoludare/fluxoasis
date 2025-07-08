@@ -8,7 +8,6 @@ import {
     HeartIcon,
     UserIcon,
     SignOutIcon,
-    GearIcon,
     ArrowLeftIcon,
     MapPinIcon,
 } from "@phosphor-icons/react";
@@ -85,6 +84,24 @@ export default function Header({ variant = "default" }: HeaderProps) {
         { id: "basic", name: "Profile", icon: UserIcon },
         { id: "address", name: "Address Book", icon: MapPinIcon },
         { id: "orders", name: "Order History", icon: PackageIcon },
+    ];
+
+    const userDropdownItems = [
+        {
+            icon: UserIcon,
+            label: "Profile",
+            to: "/account?section=basic",
+        },
+        {
+            icon: MapPinIcon,
+            label: "Address Book",
+            to: "/account?section=address",
+        },
+        {
+            icon: PackageIcon,
+            label: "Orders",
+            to: "/account?section=orders",
+        },
     ];
 
     // Get active section from search params
@@ -438,34 +455,22 @@ export default function Header({ variant = "default" }: HeaderProps) {
                                             My Account
                                         </DropdownMenuLabel>
                                         <DropdownMenuSeparator />
-                                        <DropdownMenuItem>
-                                            <UserIcon
-                                                className="mr-2 h-4 w-4 text-foreground"
-                                                weight="fill"
-                                            />
-                                            <span>Profile</span>
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem>
-                                            <PackageIcon
-                                                className="mr-2 h-4 w-4 text-foreground"
-                                                weight="fill"
-                                            />
-                                            <span>Orders</span>
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem>
-                                            <HeartIcon
-                                                className="mr-2 h-4 w-4 text-foreground"
-                                                weight="fill"
-                                            />
-                                            <span>Favorites</span>
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem>
-                                            <GearIcon
-                                                className="mr-2 h-4 w-4 text-foreground"
-                                                weight="fill"
-                                            />
-                                            <span>Settings</span>
-                                        </DropdownMenuItem>
+                                        {/* Modular user dropdown menu */}
+                                        {userDropdownItems.map((item) => (
+                                            <DropdownMenuItem
+                                                asChild
+                                                key={item.label}>
+                                                <Link
+                                                    to={item.to}
+                                                    className="flex items-center">
+                                                    <item.icon
+                                                        className="mr-2 h-4 w-4 text-foreground"
+                                                        weight="regular"
+                                                    />
+                                                    <span>{item.label}</span>
+                                                </Link>
+                                            </DropdownMenuItem>
+                                        ))}
                                         <DropdownMenuSeparator />
                                         <DropdownMenuItem onClick={logOut}>
                                             <SignOutIcon
