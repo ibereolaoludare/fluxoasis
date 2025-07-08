@@ -9,6 +9,9 @@ import {
     UserIcon,
     SignOutIcon,
     GearIcon,
+    ArrowLeftIcon,
+    MapPinIcon,
+    CoffeeIcon,
 } from "@phosphor-icons/react";
 import {
     NavigationMenu,
@@ -24,19 +27,44 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Link } from "wouter";
+import { Link, useLocation, useSearchParams } from "wouter";
 import { checkUser, logOut } from "@/supabase";
 import { Button } from "./button";
+import { cn } from "@/lib/utils";
 
-export default function Header() {
+// Custom hook for user session
+function useUserSession() {
+    const [isUser, setIsUser] = useState<boolean | null | undefined>(null);
+    useEffect(() => {
+        let mounted = true;
+        (async () => {
+            const valid = await checkUser("return");
+            if (mounted) setIsUser(valid);
+        })();
+        return () => {
+            mounted = false;
+        };
+    }, []);
+    return isUser;
+}
+
+interface HeaderProps {
+    variant?: "default" | "account";
+}
+
+export default function Header({ variant = "default" }: HeaderProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [currentScroll, setCurrentScroll] = useState(0);
+    const isUser = useUserSession();
+    const [searchParams] = useSearchParams();
+    const [location, setLocation] = useLocation();
 
     // Set initial scroll position when component loads
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
 
+    // Lock scroll when mobile menu is open
     if (isMenuOpen) {
         document.body.style.overflow = "hidden";
         window.scrollTo(0, 0);
@@ -45,6 +73,7 @@ export default function Header() {
         window.scrollTo(0, currentScroll);
     }
 
+    // Navigation items for the menu
     const navItems = [
         { name: "Home", href: "home" },
         { name: "Shop", href: "shop" },
@@ -52,6 +81,220 @@ export default function Header() {
         { name: "Contact", href: "contact" },
     ];
 
+    // Account sections for account variant
+    const accountSections = [
+        { id: "basic", name: "Profile", icon: UserIcon },
+        { id: "address", name: "Address Book", icon: MapPinIcon },
+        { id: "orders", name: "Order History", icon: PackageIcon },
+    ];
+
+    // Get active section from search params
+    const activeSection = searchParams.get("section") || "basic";
+
+    // Function to update URL with section parameter
+    const updateSection = (sectionId: string) => {
+        const newSearchParams = new URLSearchParams(location.split("?")[1]);
+        newSearchParams.set("section", sectionId);
+        const newQuery = newSearchParams.toString();
+        const newPath = newQuery ? `?${newQuery}` : "";
+        setLocation(`/account${newPath}`);
+    };
+
+    // Account variant header
+    if (variant === "account") {
+        return (
+            <motion.header
+                className="sticky top-0 left-0 right-0 z-50 bg-background px-4 sm:px-8 xl:px-32"
+                initial={{ y: -100 }}
+                animate={{ y: 0 }}
+                transition={{ duration: 0.6, ease: "easeOut" }}>
+                <div className="p-4 sm:p-6 lg:p-8">
+                    <div className="flex justify-between items-center h-16">
+                        {/* Logo Section */}
+                        <motion.div
+                            className="flex items-center"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}>
+                            <Link to="/home">
+                                <motion.button
+                                    className="p-2 rounded-full hover:bg-muted/50 transition-colors mr-3"
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}>
+                                    <ArrowLeftIcon className="w-5 h-5 text-foreground" />
+                                </motion.button>
+                            </Link>
+                            <motion.div
+                                className="w-6 h-6 bg-primary rounded-lg flex items-center justify-center"
+                                animate={{ rotate: [0, 360] }}
+                                transition={{
+                                    duration: 20,
+                                    repeat: Infinity,
+                                    ease: "linear",
+                                }}>
+                                <span className="text-primary-foreground font-bold text-sm">
+                                    F
+                                </span>
+                            </motion.div>
+                            <span className="ml-2 text-xl sm:text-2xl xl:text-3xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+                                FluxOasis
+                            </span>
+                        </motion.div>
+
+                        {/* Account Navigation Menu */}
+                        <NavigationMenu className="hidden xl:flex">
+                            <NavigationMenuList className="space-x-2 bg-muted p-2 rounded-full">
+                                {accountSections.map((section, index) => {
+                                    const Icon = section.icon;
+                                    return (
+                                        <NavigationMenuItem
+                                            key={section.id}
+                                            className="hover:bg-transparent">
+                                            <motion.div
+                                                initial={{ opacity: 0, y: -20 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                transition={{
+                                                    duration: 0.5,
+                                                    delay: 0.1 + index * 0.1,
+                                                }}>
+                                                <button
+                                                    onClick={() =>
+                                                        updateSection(
+                                                            section.id
+                                                        )
+                                                    }
+                                                    className={cn(
+                                                        "text-xs font-medium flex items-center transition-colors duration-200 p-2 px-3 rounded-full",
+                                                        activeSection ===
+                                                            section.id
+                                                            ? "bg-foreground text-background"
+                                                            : "text-foreground hover:bg-foreground hover:text-background"
+                                                    )}>
+                                                    <Icon className="w-4 h-4 mr-2" />
+                                                    <span>{section.name}</span>
+                                                </button>
+                                            </motion.div>
+                                        </NavigationMenuItem>
+                                    );
+                                })}
+                            </NavigationMenuList>
+                        </NavigationMenu>
+
+                        {/* User Actions */}
+
+                        {/* Mobile Menu Button */}
+                        <motion.button
+                            className="xl:hidden p-2 rounded-lg hover:bg-muted/50 transition-colors"
+                            onClick={() => {
+                                setIsMenuOpen(!isMenuOpen);
+                                setCurrentScroll(window.scrollY);
+                            }}
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}>
+                            <AnimatePresence mode="wait">
+                                {isMenuOpen ? (
+                                    <motion.div
+                                        key="close"
+                                        initial={{ rotate: -90, opacity: 0 }}
+                                        animate={{ rotate: 0, opacity: 1 }}
+                                        exit={{ rotate: 90, opacity: 0 }}
+                                        transition={{ duration: 0.2 }}>
+                                        <XIcon
+                                            className="w-8 h-8 text-foreground"
+                                            weight="regular"
+                                        />
+                                    </motion.div>
+                                ) : (
+                                    <motion.div
+                                        key="menu"
+                                        initial={{ rotate: 90, opacity: 0 }}
+                                        animate={{ rotate: 0, opacity: 1 }}
+                                        exit={{ rotate: -90, opacity: 0 }}
+                                        transition={{ duration: 0.2 }}>
+                                        <ListIcon
+                                            className="w-8 h-8 text-foreground"
+                                            weight="regular"
+                                        />
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </motion.button>
+                    </div>
+
+                    {/* Mobile Menu */}
+                    <AnimatePresence>
+                        {isMenuOpen && (
+                            <motion.div
+                                className="xl:hidden"
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: "100dvh" }}
+                                exit={{ opacity: 0, height: 0 }}
+                                transition={{
+                                    duration: 0.3,
+                                    ease: "easeInOut",
+                                }}>
+                                <div className="py-4 space-y-2 border-t border-border">
+                                    {/* Mobile Account Sections */}
+                                    {accountSections.map((section, index) => {
+                                        const Icon = section.icon;
+                                        return (
+                                            <motion.div
+                                                key={section.id}
+                                                initial={{ opacity: 0, x: -20 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                exit={{ opacity: 0, x: -20 }}
+                                                transition={{
+                                                    duration: 0.3,
+                                                    delay: 0.1 + index * 0.1,
+                                                }}
+                                                onClick={() => {
+                                                    updateSection(section.id);
+                                                    setIsMenuOpen(false);
+                                                }}>
+                                                <button
+                                                    className={cn(
+                                                        "w-full flex items-center space-x-4 p-6 text-foreground text-sm hover:bg-foreground/2 font-bold rounded-full transition-colors duration-200",
+                                                        activeSection ===
+                                                            section.id
+                                                            ? "bg-primary text-primary-foreground hover:bg-primary"
+                                                            : ""
+                                                    )}>
+                                                    <Icon className="w-5 h-5" />
+                                                    <span>{section.name}</span>
+                                                </button>
+                                            </motion.div>
+                                        );
+                                    })}
+
+                                    {/* Mobile User Actions */}
+                                    <div className="border-border">
+                                        <div className="flex flex-col gap-2">
+                                            {isUser && (
+                                                <div className="flex items-center justify-between">
+                                                    <button
+                                                        className="w-full flex items-center space-x-4 p-6 text-foreground text-sm hover:bg-foreground/2 font-bold rounded-full transition-colors duration-200"
+                                                        onClick={() => {
+                                                            logOut();
+                                                            setIsMenuOpen(
+                                                                false
+                                                            );
+                                                        }}>
+                                                        <SignOutIcon className="w-5 h-5" />
+                                                        <span>Log Out</span>
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
+            </motion.header>
+        );
+    }
+
+    // Default header
     return (
         <motion.header
             className="sticky top-0 left-0 right-0 z-50 bg-background px-4 sm:px-8 xl:px-32"
@@ -60,7 +303,7 @@ export default function Header() {
             transition={{ duration: 0.6, ease: "easeOut" }}>
             <div className="p-4 sm:p-6 lg:p-8">
                 <div className="flex justify-between items-center h-16">
-                    {/* Logo */}
+                    {/* Logo Section */}
                     <motion.div
                         className="flex items-center"
                         whileHover={{ scale: 1.05 }}
@@ -107,7 +350,7 @@ export default function Header() {
                         </NavigationMenuList>
                     </NavigationMenu>
 
-                    {/* User and Cart Dropdowns */}
+                    {/* Desktop User and Cart Dropdowns */}
                     <div className="hidden xl:flex items-center space-x-4">
                         {/* Cart Dropdown */}
                         <motion.div
@@ -162,105 +405,100 @@ export default function Header() {
                             </DropdownMenu>
                         </motion.div>
 
-                        {/* User Dropdown */}
-                        {(() => {
-                            const [isUser, setIsUser] = useState<boolean | null | undefined>(null);
-
-                            useEffect(() => {
-                                let mounted = true;
-                                (async () => {
-                                    const valid = await checkUser("return");
-                                    if (mounted) setIsUser(valid);
-                                })();
-                                return () => { mounted = false; };
-                            }, []);
-
-                            if (isUser === null) {
-                                // Loading state, can show a skeleton or nothing
-                                return (
-                                    <motion.div
-                                        initial={{ opacity: 0, scale: 0.8 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        transition={{ duration: 0.5, delay: 0.4 }}>
-                                        <div className="p-3 rounded-full bg-muted/30 animate-pulse w-10 h-10" />
-                                    </motion.div>
-                                );
-                            }
-
-                            if (isUser) {
-                                // User is authenticated, show dropdown
-                                return (
-                                    <motion.div
-                                        initial={{ opacity: 0, scale: 0.8 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        transition={{ duration: 0.5, delay: 0.4 }}>
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <motion.button
-                                                    className="p-3 rounded-full hover:bg-muted/50 transition-colors"
-                                                    whileHover={{ scale: 1.05 }}
-                                                    whileTap={{ scale: 0.95 }}>
-                                                    <UserIcon
-                                                        className="w-5 h-5 text-foreground"
-                                                        weight="regular"
-                                                    />
-                                                </motion.button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent
-                                                align="end"
-                                                className="w-56">
-                                                <DropdownMenuLabel>
-                                                    My Account
-                                                </DropdownMenuLabel>
-                                                <DropdownMenuSeparator />
-                                                <DropdownMenuItem>
-                                                    <UserIcon className="mr-2 h-4 w-4 text-foreground" weight="fill" />
-                                                    <span>Profile</span>
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem>
-                                                    <PackageIcon className="mr-2 h-4 w-4 text-foreground" weight="fill" />
-                                                    <span>Orders</span>
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem>
-                                                    <HeartIcon className="mr-2 h-4 w-4 text-foreground" weight="fill" />
-                                                    <span>Favorites</span>
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem>
-                                                    <GearIcon className="mr-2 h-4 w-4 text-foreground" weight="fill" />
-                                                    <span>Settings</span>
-                                                </DropdownMenuItem>
-                                                <DropdownMenuSeparator />
-                                                <DropdownMenuItem onClick={logOut}>
-                                                    <SignOutIcon className="mr-2 h-4 w-4 text-foreground" weight="fill" />
-                                                    <span>Sign Out</span>
-                                                </DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
-                                    </motion.div>
-                                );
-                            }
-
-                            // User is not authenticated, show Sign Up and Log In buttons
-                            return (
-                                <motion.div
-                                    initial={{ opacity: 0, scale: 0.8 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    transition={{ duration: 0.5, delay: 0.4 }}
-                                    className="flex gap-2"
-                                >
-                                    <Link href="/signup">
-                                        <Button className="rounded-full hover:bg-foreground/90 bg-foreground text-background p-5">
-                                            Sign Up
-                                        </Button>
-                                    </Link>
-                                    <Link href="/login">
-                                        <Button className="rounded-full p-5 shadow-none hover:bg-primary hover:text-background" variant="outline">
-                                            Log In
-                                        </Button>
-                                    </Link>
-                                </motion.div>
-                            );
-                        })()}
+                        {/* User Dropdown or Auth Buttons */}
+                        {isUser === null ? (
+                            // Loading state
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ duration: 0.5, delay: 0.4 }}>
+                                <div className="p-3 rounded-full bg-muted/30 animate-pulse w-10 h-10" />
+                            </motion.div>
+                        ) : isUser ? (
+                            // User is authenticated
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ duration: 0.5, delay: 0.4 }}>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <motion.button
+                                            className="p-3 rounded-full hover:bg-muted/50 transition-colors"
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}>
+                                            <UserIcon
+                                                className="w-5 h-5 text-foreground"
+                                                weight="regular"
+                                            />
+                                        </motion.button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent
+                                        align="end"
+                                        className="w-56">
+                                        <DropdownMenuLabel>
+                                            My Account
+                                        </DropdownMenuLabel>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem>
+                                            <UserIcon
+                                                className="mr-2 h-4 w-4 text-foreground"
+                                                weight="fill"
+                                            />
+                                            <span>Profile</span>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem>
+                                            <PackageIcon
+                                                className="mr-2 h-4 w-4 text-foreground"
+                                                weight="fill"
+                                            />
+                                            <span>Orders</span>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem>
+                                            <HeartIcon
+                                                className="mr-2 h-4 w-4 text-foreground"
+                                                weight="fill"
+                                            />
+                                            <span>Favorites</span>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem>
+                                            <GearIcon
+                                                className="mr-2 h-4 w-4 text-foreground"
+                                                weight="fill"
+                                            />
+                                            <span>Settings</span>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem onClick={logOut}>
+                                            <SignOutIcon
+                                                className="mr-2 h-4 w-4 text-foreground"
+                                                weight="fill"
+                                            />
+                                            <span>Sign Out</span>
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            </motion.div>
+                        ) : (
+                            // Not authenticated
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ duration: 0.5, delay: 0.4 }}
+                                className="flex gap-2">
+                                <Link href="/signup">
+                                    <Button className="rounded-full hover:bg-foreground/90 bg-foreground text-background p-5">
+                                        Sign Up
+                                    </Button>
+                                </Link>
+                                <Link href="/login">
+                                    <Button
+                                        className="rounded-full p-5 shadow-none hover:bg-primary hover:text-background"
+                                        variant="outline">
+                                        Log In
+                                    </Button>
+                                </Link>
+                            </motion.div>
+                        )}
                     </div>
 
                     {/* Mobile Menu Button */}
@@ -312,6 +550,7 @@ export default function Header() {
                             exit={{ opacity: 0, height: 0 }}
                             transition={{ duration: 0.3, ease: "easeInOut" }}>
                             <div className="py-4 space-y-2 border-t border-border">
+                                {/* Mobile Navigation Items */}
                                 {navItems.map((item, index) => (
                                     <motion.div
                                         key={item.name}
@@ -325,39 +564,87 @@ export default function Header() {
                                         onClick={() => setIsMenuOpen(false)}>
                                         <Link
                                             to={item.href}
-                                            className="flex items-center space-x-4 p-6 text-foreground hover:bg-foreground/2 font-bold rounded-lg transition-colors duration-200">
+                                            className="flex items-center space-x-4 p-6 text-foreground hover:bg-primary hover:text-background font-bold rounded-full transition-colors duration-200 text-sm">
                                             <span>{item.name}</span>
                                         </Link>
                                     </motion.div>
                                 ))}
 
-                                {/* Mobile User Actions */}
+                                {/* Mobile User Actions and Cart */}
                                 <div className="pt-4 border-t border-border">
-                                    <div className="flex items-center justify-between p-4">
-                                        <motion.button
-                                            className="flex items-center space-x-3 p-3 rounded-lg transition-colors"
-                                            whileHover={{ scale: 1.05 }}
-                                            whileTap={{ scale: 0.95 }}>
-                                            <ShoppingCartIcon
-                                                className="w-6 h-6 text-foreground"
-                                                weight="regular"
-                                            />
-                                            <span className="text-foreground font-medium">
-                                                Cart (3)
-                                            </span>
-                                        </motion.button>
-                                        <motion.button
-                                            className="flex items-center space-x-3 p-3 rounded-lg transition-colors"
-                                            whileHover={{ scale: 1.05 }}
-                                            whileTap={{ scale: 0.95 }}>
-                                            <UserIcon
-                                                className="w-6 h-6 text-foreground"
-                                                weight="regular"
-                                            />
-                                            <span className="text-foreground font-medium">
-                                                Account
-                                            </span>
-                                        </motion.button>
+                                    <div className="flex flex-col gap-2 p-4 sm:px-32 md:px-16">
+                                        {/* Cart Button */}
+                                        {/* User Actions */}
+                                        {isUser === null ? null : isUser ? (
+                                            <div className="flex items-center justify-between">
+                                                <motion.button
+                                                    className="flex items-center space-x-3 text-sm p-3 rounded-lg transition-colors"
+                                                    whileHover={{
+                                                        scale: 1.05,
+                                                    }}
+                                                    whileTap={{
+                                                        scale: 0.95,
+                                                    }}>
+                                                    <ShoppingCartIcon
+                                                        className="w-6 h-6 text-foreground"
+                                                        weight="regular"
+                                                    />
+                                                    <span className="text-foreground font-medium">
+                                                        Cart (3)
+                                                    </span>
+                                                </motion.button>
+                                                <Link to="account">
+                                                    <motion.button
+                                                        className="flex items-center space-x-3 p-3 text-sm rounded-lg transition-colors"
+                                                        whileHover={{
+                                                            scale: 1.05,
+                                                        }}
+                                                        whileTap={{
+                                                            scale: 0.95,
+                                                        }}>
+                                                        <UserIcon
+                                                            className="w-6 h-6 text-foreground"
+                                                            weight="regular"
+                                                        />
+                                                        <span className="text-foreground font-medium">
+                                                            Account
+                                                        </span>
+                                                    </motion.button>
+                                                </Link>
+                                            </div>
+                                        ) : (
+                                            <div className="flex flex-col md:flex-row gap-2">
+                                                <Link
+                                                    to="/cart"
+                                                    className={"w-full"}>
+                                                    <Button
+                                                        className="w-full flex items-center gap-2 p-6 hover:bg-accent hover:text-accent-foreground rounded-full"
+                                                        variant="outline">
+                                                        <ShoppingCartIcon
+                                                            className="w-6 h-6"
+                                                            weight="regular"
+                                                        />
+                                                        <span>Cart</span>
+                                                    </Button>
+                                                </Link>
+                                                <Link
+                                                    to="/login"
+                                                    className={"w-full"}>
+                                                    <Button
+                                                        className="w-full flex items-center gap-2 p-6 hover:bg-primary hover:text-background rounded-full"
+                                                        variant="outline">
+                                                        Log In
+                                                    </Button>
+                                                </Link>
+                                                <Link
+                                                    to="/signup"
+                                                    className={"w-full"}>
+                                                    <Button className="w-full flex items-center gap-2 p-6 rounded-full text-background bg-foreground hover:bg-foreground/90">
+                                                        Sign Up
+                                                    </Button>
+                                                </Link>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>

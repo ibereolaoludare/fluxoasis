@@ -26,19 +26,19 @@ export default function Home() {
             src: "/images/fanta.png",
             alt: "Fanta",
             delay: 0.5,
-            position: "top-40 right-20",
+            position: "top-10 sm:top-40 right-20",
         },
         {
             src: "/images/pepsi.png",
             alt: "Pepsi",
             delay: 1,
-            position: "bottom-40 left-1/6",
+            position: "bottom-5 sm:bottom-40 left-1/6",
         },
         {
             src: "/images/sprite.png",
             alt: "Sprite",
             delay: 1,
-            position: "bottom-20 right-1/6",
+            position: "bottom-10 sm:bottom-20 right-1/6",
         },
     ];
 
@@ -285,7 +285,7 @@ export default function Home() {
                     <div className="relative z-10 text-center max-w-6xl mx-auto px-4 sm:px-0">
                         {/* Main Heading */}
                         <motion.h1
-                            className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-foreground leading-tight mb-3 sm:mb-4"
+                            className="text-4xl sm:text-4xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-foreground leading-tight mb-3 sm:mb-4"
                             initial={{ opacity: 0, y: 30 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8, delay: 0.3 }}>
@@ -323,7 +323,7 @@ export default function Home() {
                                 whileTap={{ scale: 0.95 }}>
                                 <Button
                                     asChild
-                                    className="w-full sm:w-auto text-sm sm:text-base !p-4 sm:!p-6 bg-accent hover:bg-accent/90 text-accent-foreground rounded-full transition-all duration-300 group">
+                                    className="w-full sm:w-auto text-sm sm:text-base !p-6 sm:!p-6 bg-accent hover:bg-accent/90 text-accent-foreground rounded-full transition-all duration-300 group">
                                     <Link to="/shop">
                                         Shop Now
                                         <ArrowRightIcon className="ml-2 w-3 h-3 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform duration-200" />
@@ -337,7 +337,7 @@ export default function Home() {
                                 whileTap={{ scale: 0.95 }}>
                                 <Button
                                     asChild
-                                    className="w-full sm:w-auto text-sm sm:text-base bg-background border border-border text-foreground !p-4 sm:!p-6 hover:bg-foreground hover:text-background rounded-full transition-all duration-300 shadow-none">
+                                    className="w-full sm:w-auto text-sm sm:text-base bg-background border border-border text-foreground !p-6 sm:!p-6 hover:bg-foreground hover:text-background rounded-full transition-all duration-300 shadow-none">
                                     <Link to="/about">Learn More</Link>
                                 </Button>
                             </motion.div>
