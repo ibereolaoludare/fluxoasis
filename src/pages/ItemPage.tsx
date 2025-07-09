@@ -12,18 +12,8 @@ import {
     PlusIcon,
     MinusIcon,
 } from "@phosphor-icons/react";
-import { cn } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 import { toast } from "sonner";
-
-// Helper function to format price with proper punctuation
-const formatPrice = (price: number): string => {
-    return new Intl.NumberFormat("en-NG", {
-        style: "currency",
-        currency: "NGN",
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-    }).format(price);
-};
 
 export default function ItemPage() {
     // Get the id from the URL
@@ -68,6 +58,16 @@ export default function ItemPage() {
         const existingCartItems = JSON.parse(
             localStorage.getItem("cart-items") || "[]"
         );
+
+        // Prevent adding the same item more than once
+        if (
+            existingCartItems.some(
+                (cartItem: { id: number }) => cartItem.id === item.id
+            )
+        ) {
+            toast.error("Item is already in the cart!");
+            return;
+        }
 
         // Create new cart item
         const newCartItem = {

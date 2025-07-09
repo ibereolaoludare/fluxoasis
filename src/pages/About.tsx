@@ -26,14 +26,14 @@ export default function About() {
         {
             icon: PackageIcon,
             number: "50K+",
-            label: "Orders Delivered",
-            description: "Successfully delivered orders",
+            label: "Orders Picked Up",
+            description: "Successfully picked up orders",
         },
         {
             icon: ClockIcon,
             number: "5 Min",
-            label: "Average Delivery",
-            description: "Lightning fast delivery time",
+            label: "Average Pick Up",
+            description: "Lightning fast pick up time",
         },
         {
             icon: StarIcon,
@@ -54,7 +54,7 @@ export default function About() {
             icon: TruckIcon,
             title: "Fast & Reliable",
             description:
-                "Lightning-fast delivery with 100% reliability. Your drinks arrive chilled and on time, every time.",
+                "Lightning-fast pick up with 100% reliability. Your drinks arrive chilled and on time, every time.",
         },
         {
             icon: ShieldIcon,

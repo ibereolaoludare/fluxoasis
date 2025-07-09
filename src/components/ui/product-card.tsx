@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRightIcon } from "@phosphor-icons/react";
 import { Link } from "wouter";
+import { formatPrice } from "@/lib/utils";
 
 interface ProductCardProps {
     id: number;
@@ -9,16 +10,6 @@ interface ProductCardProps {
     price: number;
     image?: string;
 }
-
-// Helper function to format price with proper punctuation
-const formatPrice = (price: number): string => {
-    return new Intl.NumberFormat("en-NG", {
-        style: "currency",
-        currency: "NGN",
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-    }).format(price);
-};
 
 export default function ProductCard({
     id,

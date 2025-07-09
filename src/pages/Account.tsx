@@ -510,7 +510,7 @@ function AddressBookSection() {
                         Address Book
                     </h2>
                     <p className="text-muted-foreground text-xs sm:text-sm">
-                        Manage your delivery addresses and preferences
+                        Manage your pick up addresses and preferences
                     </p>
                 </div>
                 <Button
@@ -596,7 +596,7 @@ function AddressBookSection() {
                         <DialogDescription>
                             {editIndex !== null
                                 ? "Update the details for this address."
-                                : "Add a new delivery address to your account. You can set one as your default for faster checkout."}
+                                : "Add a new pick up address to your account. You can set one as your default for faster checkout."}
                         </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-3">

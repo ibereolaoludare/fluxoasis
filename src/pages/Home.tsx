@@ -48,8 +48,8 @@ export default function Home() {
     const features = [
         {
             icon: ClockIcon,
-            title: "5 Min Delivery",
-            description: "Lightning fast delivery",
+            title: "5 Min Pick Up",
+            description: "Lightning fast pick up",
         },
         {
             icon: ShieldIcon,
@@ -128,8 +128,8 @@ export default function Home() {
     const whyChooseUs = [
         {
             icon: TruckIcon,
-            title: "Fast Delivery",
-            description: "Get your drinks delivered in minutes, not hours",
+            title: "Fast Pick Up",
+            description: "Get your drinks picked up in minutes, not hours",
         },
         {
             icon: ShoppingCartIcon,

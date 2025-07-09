@@ -397,8 +397,8 @@ export default function Contact() {
                             viewport={{ once: true }}>
                             {[
                                 {
-                                    question: "How fast is your delivery?",
-                                    answer: "We deliver within 5-10 minutes in most areas. Our goal is to get your drinks to you as quickly as possible while maintaining quality.",
+                                    question: "How fast is your pick up?",
+                                    answer: "We pick up within 5-10 minutes in most areas. Our goal is to get your drinks to you as quickly as possible while maintaining quality.",
                                 },
                                 {
                                     question: "What areas do you serve?",

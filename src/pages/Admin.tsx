@@ -72,14 +72,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import type { Tables, TablesInsert } from "@/supabase.type";
 import { toast } from "sonner";
-
-// Add formatPrice helper function at the top of the file
-function formatPrice(price: number) {
-    return new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "NGN",
-    }).format(price);
-}
+import { formatPrice } from "@/lib/utils";
 
 ChartJS.register(
     CategoryScale,

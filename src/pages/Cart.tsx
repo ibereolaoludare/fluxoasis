@@ -12,19 +12,9 @@ import {
     TrashIcon,
     PackageIcon,
 } from "@phosphor-icons/react";
-import { cn } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 import { toast } from "sonner";
 import { supabase } from "@/supabase";
-
-// Helper function to format price with proper punctuation
-const formatPrice = (price: number): string => {
-    return new Intl.NumberFormat("en-NG", {
-        style: "currency",
-        currency: "NGN",
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-    }).format(price);
-};
 
 // Cart item interface matching localStorage structure
 interface CartItem {
@@ -169,8 +159,8 @@ export default function Cart() {
         (sum, item) => sum + item.price * item.quantity,
         0
     );
-    const shipping = subtotal > 0 ? 15000 : 0;
-    const total = subtotal + shipping;
+    // Remove the pickupFee variable and its usage
+    const total = subtotal;
     const itemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
     if (loading) {
@@ -429,14 +419,7 @@ export default function Cart() {
                                                         {formatPrice(subtotal)}
                                                     </span>
                                                 </div>
-                                                <div className="flex justify-between text-sm">
-                                                    <span className="text-muted-foreground">
-                                                        Shipping
-                                                    </span>
-                                                    <span className="font-semibold">
-                                                        {formatPrice(shipping)}
-                                                    </span>
-                                                </div>
+                                                {/* Remove the Pick Up Fee row from the order summary UI */}
                                                 <div className="border-t border-border/50 pt-3">
                                                     <div className="flex justify-between text-lg font-bold">
                                                         <span>Total</span>

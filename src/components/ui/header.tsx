@@ -913,7 +913,7 @@ export default function Header({ variant = "default" }: HeaderProps) {
                                                         </span>
                                                     </motion.button>
                                                 </Link>
-                                                <Link to="account">
+                                                <Link to="/account">
                                                     <motion.button
                                                         className="flex items-center space-x-3 p-3 text-sm rounded-lg transition-colors"
                                                         whileHover={{
