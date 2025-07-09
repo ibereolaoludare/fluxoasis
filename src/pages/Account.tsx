@@ -32,6 +32,7 @@ import {
     DialogDescription,
 } from "@/components/ui/dialog";
 import { Link } from "wouter";
+import { formatPrice } from "@/lib/utils";
 // import {
 //     Select,
 //     SelectTrigger,
@@ -683,29 +684,38 @@ function AddressBookSection() {
 
 // Order History Section Component
 function OrderHistorySection() {
-    const orders = [
-        {
-            id: "ORD-001",
-            date: "2024-01-15",
-            items: ["Cappuccino", "Croissant"],
-            total: 12.5,
-            status: "Delivered",
-        },
-        {
-            id: "ORD-002",
-            date: "2024-01-10",
-            items: ["Latte", "Muffin", "Orange Juice"],
-            total: 18.75,
-            status: "Delivered",
-        },
-        {
-            id: "ORD-003",
-            date: "2024-01-05",
-            items: ["Americano", "Bagel"],
-            total: 9.25,
-            status: "Delivered",
-        },
-    ];
+    const [orders, setOrders] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
+    const [detailsOpen, setDetailsOpen] = useState(false);
+
+    useEffect(() => {
+        const fetchOrders = async () => {
+            setLoading(true);
+            const {
+                data: { user },
+                error: userError,
+            } = await supabase.auth.getUser();
+            if (userError || !user) {
+                setOrders([]);
+                setLoading(false);
+                return;
+            }
+            const { data, error } = await supabase
+                .from("orders")
+                .select("*")
+                .eq("user_id", user.id)
+                .order("created_at", { ascending: false });
+            if (error) {
+                toast.error("Failed to load orders");
+                setOrders([]);
+            } else {
+                setOrders(data || []);
+            }
+            setLoading(false);
+        };
+        fetchOrders();
+    }, []);
 
     return (
         <motion.div
@@ -724,43 +734,121 @@ function OrderHistorySection() {
                 </div>
             </div>
 
-            <div className="space-y-4">
-                {orders.map((order) => (
-                    <div
-                        key={order.id}
-                        className="w-full rounded-2xl p-4 border border-border/50">
-                        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 items-start justify-between">
-                            <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <span className="text-base font-semibold">
-                                        {order.id}
-                                    </span>
-                                    <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium">
-                                        {order.status}
-                                    </span>
+            {loading ? (
+                <div className="text-center text-muted-foreground py-8">
+                    Loading orders...
+                </div>
+            ) : orders.length === 0 ? (
+                <div className="text-center text-muted-foreground py-8">
+                    No orders found.
+                </div>
+            ) : (
+                <div className="space-y-4">
+                    {orders.map((order) => (
+                        <div
+                            key={order.id}
+                            className="w-full rounded-2xl p-4 border border-border/50">
+                            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 items-start justify-between">
+                                <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <span className="text-base font-semibold">
+                                            ORD-
+                                            {String(order.id).padStart(3, "0")}
+                                        </span>
+                                        <span className="bg-green-100 capitalize text-green-800 text-xs px-2 py-1 rounded-full font-medium">
+                                            {order.order_state || "Pending"}
+                                        </span>
+                                    </div>
+                                    <p className="text-muted-foreground text-sm mb-1">
+                                        {order.order?.items
+                                            ?.map((item: any) => item.name)
+                                            .join(", ")}
+                                    </p>
+                                    <p className="text-xs text-muted-foreground">
+                                        {new Date(order.created_at).toLocaleDateString("en-GB")}
+                                    </p>
                                 </div>
-                                <p className="text-muted-foreground text-sm mb-1">
-                                    {order.items.join(", ")}
-                                </p>
-                                <p className="text-xs text-muted-foreground">
-                                    {new Date(order.date).toLocaleDateString()}
-                                </p>
-                            </div>
-                            <div className="text-right w-full sm:w-min">
-                                <p className="text-lg font-bold text-foreground">
-                                    ${order.total}
-                                </p>
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="mt-2 rounded-full shadow-none hover:bg-foreground hover:text-background text-sm px-4 py-1">
-                                    View Details
-                                </Button>
+                                <div className="text-right w-full sm:w-min">
+                                    <p className="text-lg font-bold text-foreground">
+                                        {formatPrice(order.order?.total) ?? "-"}
+                                    </p>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="mt-2 rounded-full shadow-none hover:bg-foreground hover:text-background text-sm px-4 py-1"
+                                        onClick={() => {
+                                            setSelectedOrder(order);
+                                            setDetailsOpen(true);
+                                        }}>
+                                        View Details
+                                    </Button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                ))}
-            </div>
+                    ))}
+                </div>
+            )}
+
+            {/* Order Details Dialog */}
+            <Dialog
+                open={detailsOpen}
+                onOpenChange={setDetailsOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Order Details</DialogTitle>
+                        <DialogDescription>
+                            View the details of your order, including items,
+                            status, and total amount.
+                        </DialogDescription>
+                    </DialogHeader>
+                    {selectedOrder && (
+                        <div className="space-y-2 flex flex-col items-start mt-2">
+                            <div>
+                                <b>Order ID:</b> ORD-
+                                {String(selectedOrder.id).padStart(3, "0")}
+                            </div>
+                            <div>
+                                <b>Date:</b>{" "}
+                                {new Date(selectedOrder.created_at).toLocaleString("en-GB", {
+                                    day: "2-digit",
+                                    month: "2-digit",
+                                    year: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                })}
+                            </div>
+                            <div>
+                                <b>Status:</b> <span className="capitalize">{selectedOrder.order_state}</span>
+                            </div>
+                            <div>
+                                <b>Total:</b>{" "}
+                                {formatPrice(selectedOrder.order?.total) ?? "-"}
+                            </div>
+                            <div className="mt-2">
+                                <b>Items:</b>
+                            </div>
+                            <ul className="list-disc pl-6">
+                                {selectedOrder.order?.items?.map(
+                                    (item: any, idx: number) => (
+                                        <li key={idx}>
+                                            {item.name} x{item.quantity} (
+                                            {formatPrice(item.price)} each)
+                                        </li>
+                                    )
+                                )}
+                            </ul>
+                        </div>
+                    )}
+                    <DialogFooter>
+                        <DialogClose asChild>
+                            <Button className="!p-6 bg-foreground hover:bg-foreground/90 rounded-full">
+                                <XIcon />
+                                Close
+                            </Button>
+                        </DialogClose>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </motion.div>
     );
 }

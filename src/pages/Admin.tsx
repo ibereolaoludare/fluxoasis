@@ -13,7 +13,7 @@ import {
 } from "@phosphor-icons/react";
 import { useSearchParams } from "wouter";
 import Header from "@/components/ui/header";
-import { supabase } from "@/supabase";
+import { supabase, supabaseAdmin } from "@/supabase";
 import { navigate } from "wouter/use-browser-location";
 import { Bar } from "react-chartjs-2";
 import {
@@ -982,16 +982,307 @@ function ProductsSection() {
     );
 }
 function OrdersSection() {
+    const [orders, setOrders] = useState<any[]>([]);
+    const [users, setUsers] = useState<Record<string, any>>({});
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState<Record<number, boolean>>({});
+    const [userError, setUserError] = useState<string | null>(null);
+    const [detailsOpen, setDetailsOpen] = useState(false);
+    const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
+    const orderStates = ["pending", "processing", "delivered", "cancelled"];
+
+    useEffect(() => {
+        const fetchOrdersAndUsers = async () => {
+            setLoading(true);
+            setUserError(null);
+            // Fetch all orders
+            const { data: ordersData, error: ordersError } = await supabase
+                .from("orders")
+                .select("*")
+                .order("created_at", { ascending: false });
+            if (ordersError) {
+                setOrders([]);
+                setLoading(false);
+                return;
+            }
+            setOrders(ordersData || []);
+            // Get unique user_ids
+            const userIds = Array.from(
+                new Set((ordersData || []).map((o: any) => o.user_id))
+            );
+            // Fetch user info for each user_id
+            let usersMap: Record<string, any> = {};
+            for (const userId of userIds) {
+                try {
+                    const { data, error } =
+                        await supabaseAdmin.auth.admin.getUserById(userId);
+                    if (data?.user) {
+                        usersMap[userId] = {
+                            name:
+                                data.user.user_metadata?.name ||
+                                data.user.email?.split("@")[0] ||
+                                "User",
+                            email: data.user.email,
+                            phone: data.user.user_metadata?.phone || "",
+                        };
+                    } else {
+                        usersMap[userId] = {
+                            name: "Unknown",
+                            email: "",
+                            phone: "",
+                        };
+                        if (error) setUserError(`Error: ${error.message}`);
+                    }
+                } catch (err: any) {
+                    usersMap[userId] = {
+                        name: "Unknown",
+                        email: "",
+                        phone: "",
+                    };
+                    setUserError(`Error fetching user info: ${err.message}`);
+                }
+            }
+            setUsers(usersMap);
+            setLoading(false);
+        };
+        fetchOrdersAndUsers();
+    }, []);
+
+    const handleStateChange = async (orderId: number, newState: string) => {
+        setSaving((prev) => ({ ...prev, [orderId]: true }));
+        const { error } = await supabase
+            .from("orders")
+            .update({ order_state: newState })
+            .eq("id", orderId);
+        if (!error) {
+            setOrders((prev) =>
+                prev.map((order) =>
+                    order.id === orderId
+                        ? { ...order, order_state: newState }
+                        : order
+                )
+            );
+        }
+        setSaving((prev) => ({ ...prev, [orderId]: false }));
+    };
+
+    if (loading)
+        return (
+            <div className="p-8 text-center text-muted-foreground">
+                Loading orders...
+            </div>
+        );
+
     return (
         <motion.div
             className="w-full rounded-2xl p-8"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}>
+            transition={{ duration: 0.5, delay: 0.1 }}>
             <h2 className="text-xl font-bold mb-2">Orders</h2>
-            <p className="text-muted-foreground text-sm">
-                View and manage orders.
+            <p className="text-muted-foreground text-sm mb-6">
+                View and manage all user orders. You can update the order state.
             </p>
+            {userError && (
+                <div className="mb-4 text-destructive text-sm font-semibold">
+                    {userError}
+                </div>
+            )}
+            <div className="space-y-4">
+                {orders.length === 0 ? (
+                    <div className="text-center text-muted-foreground py-8">
+                        No orders found.
+                    </div>
+                ) : (
+                    orders.map((order) => {
+                        const user = users[order.user_id] || {};
+                        return (
+                            <div
+                                key={order.id}
+                                className="w-full rounded-2xl p-4 border border-border/50 bg-muted/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                <div className="w-full">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <span className="text-base font-semibold font-mono">
+                                            ORD-
+                                            {String(order.id).padStart(3, "0")}
+                                        </span>
+                                        <span className="bg-green-100 capitalize text-green-800 text-xs px-2 py-1 rounded-full font-medium">
+                                            {order.order_state || "Pending"}
+                                        </span>
+                                    </div>
+                                    <div className="text-sm text-muted-foreground mb-1">
+                                        <b>User:</b> {user.name}
+                                        <br />
+                                        <b>Email:</b> {user.email}
+                                        <br />
+                                        <b>Phone:</b> {user.phone}
+                                    </div>
+                                    <p className="text-xs text-muted-foreground">
+                                        {new Date(
+                                            order.created_at
+                                        ).toLocaleDateString("en-GB")}
+                                    </p>
+                                </div>
+                                <div className="flex flex-col items-end gap-2 w-full sm:min-w-[180px]">
+                                    <span className="text-lg font-bold text-foreground">
+                                        {order.order?.total
+                                            ? Intl.NumberFormat("en-US", {
+                                                  style: "currency",
+                                                  currency: "USD",
+                                              }).format(order.order.total)
+                                            : "-"}
+                                    </span>
+                                    <Select
+                                        value={order.order_state}
+                                        onValueChange={(value) =>
+                                            handleStateChange(order.id, value)
+                                        }
+                                        disabled={saving[order.id]}>
+                                        <SelectTrigger className="capitalize w-[140px]">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {orderStates.map((state) => (
+                                                <SelectItem
+                                                    key={state}
+                                                    value={state}
+                                                    className="capitalize">
+                                                    {state}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="rounded-full hover:bg-foreground hover:text-background shadow-none mt-2"
+                                        onClick={() => {
+                                            setSelectedOrder(order);
+                                            setDetailsOpen(true);
+                                        }}>
+                                        View Details
+                                    </Button>
+                                </div>
+                            </div>
+                        );
+                    })
+                )}
+            </div>
+            {/* Order Details Dialog */}
+            <Dialog
+                open={detailsOpen}
+                onOpenChange={setDetailsOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Order Details</DialogTitle>
+                        <DialogDescription>
+                            View the details of this order, including items,
+                            status, and user info. You can update the order
+                            state.
+                        </DialogDescription>
+                    </DialogHeader>
+                    {selectedOrder && (
+                        <div className="space-y-2 flex flex-col items-start mt-2">
+                            <div>
+                                <b>Order ID:</b> ORD-
+                                {String(selectedOrder.id).padStart(3, "0")}
+                            </div>
+                            <div>
+                                <b>Date:</b>{" "}
+                                {new Date(
+                                    selectedOrder.created_at
+                                ).toLocaleString("en-GB", {
+                                    day: "2-digit",
+                                    month: "2-digit",
+                                    year: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                })}
+                            </div>
+                            <div>
+                                <b>Status:</b>{" "}
+                                <span className="capitalize">
+                                    {selectedOrder.order_state}
+                                </span>
+                                <Select
+                                    value={selectedOrder.order_state}
+                                    onValueChange={async (value) => {
+                                        await handleStateChange(
+                                            selectedOrder.id,
+                                            value
+                                        );
+                                        setSelectedOrder((prev: any) =>
+                                            prev
+                                                ? {
+                                                      ...prev,
+                                                      order_state: value,
+                                                  }
+                                                : prev
+                                        );
+                                    }}
+                                    disabled={saving[selectedOrder.id]}>
+                                    <SelectTrigger className="capitalize w-[140px] ml-2">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {orderStates.map((state) => (
+                                            <SelectItem
+                                                key={state}
+                                                value={state}
+                                                className="capitalize">
+                                                {state}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div>
+                                <b>User:</b>{" "}
+                                {users[selectedOrder.user_id]?.name} (
+                                {users[selectedOrder.user_id]?.email})
+                            </div>
+                            <div>
+                                <b>Phone:</b>{" "}
+                                {users[selectedOrder.user_id]?.phone}
+                            </div>
+                            <div>
+                                <b>Total:</b>{" "}
+                                {selectedOrder.order?.total
+                                    ? Intl.NumberFormat("en-US", {
+                                          style: "currency",
+                                          currency: "USD",
+                                      }).format(selectedOrder.order.total)
+                                    : "-"}
+                            </div>
+                            <div className="mt-2">
+                                <b>Items:</b>
+                            </div>
+                            <ul className="list-disc pl-6">
+                                {selectedOrder.order?.items?.map(
+                                    (item: any, idx: number) => (
+                                        <li key={idx}>
+                                            {item.name} x{item.quantity} (
+                                            {Intl.NumberFormat("en-US", {
+                                                style: "currency",
+                                                currency: "USD",
+                                            }).format(item.price)}{" "}
+                                            each)
+                                        </li>
+                                    )
+                                )}
+                            </ul>
+                        </div>
+                    )}
+                    <DialogFooter>
+                        <DialogClose asChild>
+                            <Button className="!p-6 bg-foreground hover:bg-foreground/90 rounded-full">
+                                <XIcon />
+                                Close
+                            </Button>
+                        </DialogClose>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </motion.div>
     );
 }

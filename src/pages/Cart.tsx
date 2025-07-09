@@ -144,15 +144,61 @@ export default function Cart() {
         toast.success("Cart cleared");
     };
 
-    const handleCheckout = () => {
+    const handleCheckout = async () => {
         setCheckoutLoading(true);
-        // Simulate checkout process
-        setTimeout(() => {
-            setCheckoutLoading(false);
+        try {
+            // Get current user
+            const {
+                data: { user },
+                error: userError,
+            } = await supabase.auth.getUser();
+            if (userError || !user) {
+                toast.error("You must be logged in to place an order.");
+                setCheckoutLoading(false);
+                return;
+            }
+
+            // Prepare order data
+            const orderData = {
+                items: cartItems.map(
+                    ({ id, name, price, quantity, image, category }) => ({
+                        id,
+                        name,
+                        price,
+                        quantity,
+                        image,
+                        category,
+                    })
+                ),
+                total,
+                created_at: new Date().toISOString(),
+            };
+
+            // Insert into orders table
+            const { error: insertError } = await supabase
+                .from("orders")
+                .insert([
+                    {
+                        user_id: user.id,
+                        order: orderData,
+                        order_state: "pending",
+                    },
+                ]);
+
+            if (insertError) {
+                toast.error("Failed to place order. Please try again.");
+                setCheckoutLoading(false);
+                return;
+            }
+
             toast.success("Order placed successfully!");
             setCartItems([]);
             localStorage.removeItem("cart-items");
-        }, 2000);
+        } catch (err) {
+            toast.error("An unexpected error occurred.");
+        } finally {
+            setCheckoutLoading(false);
+        }
     };
 
     const subtotal = cartItems.reduce(
