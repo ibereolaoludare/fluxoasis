@@ -1,11 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback, memo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
     XIcon,
     ListIcon,
     ShoppingCartIcon,
     PackageIcon,
-    HeartIcon,
     UserIcon,
     SignOutIcon,
     ArrowLeftIcon,
@@ -59,7 +58,7 @@ function useCartData() {
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
     const [cartTotal, setCartTotal] = useState(0);
 
-    const loadCartData = async () => {
+    const loadCartData = useCallback(async () => {
         try {
             // Get cart items from localStorage
             const cartItemsData: CartItem[] = JSON.parse(
@@ -95,7 +94,7 @@ function useCartData() {
             console.error("Error loading cart data:", error);
             setCartTotal(0);
         }
-    };
+    }, []);
 
     useEffect(() => {
         loadCartData();
@@ -117,9 +116,9 @@ function useCartData() {
             window.removeEventListener("storage", handleStorageChange);
             window.removeEventListener("cartUpdated", handleCartUpdate);
         };
-    }, []);
+    }, [loadCartData]);
 
-    const itemCount = cartItems.length;
+    const itemCount = useMemo(() => cartItems.length, [cartItems.length]);
 
     return { cartItems, cartTotal, itemCount };
 }
@@ -128,13 +127,311 @@ interface HeaderProps {
     variant?: "default" | "account" | "admin";
 }
 
-export default function Header({ variant = "default" }: HeaderProps) {
+// Memoized navigation items
+const useNavigationItems = () => {
+    return useMemo(
+        () => [
+            { name: "Home", href: "/home" },
+            { name: "Shop", href: "/shop" },
+            { name: "About", href: "/about" },
+            { name: "Contact", href: "/contact" },
+        ],
+        []
+    );
+};
+
+// Memoized account sections
+const useAccountSections = () => {
+    return useMemo(
+        () => [
+            {
+                id: "basic",
+                name: "Profile",
+                icon: UserIcon,
+                path: "/account?section=basic",
+            },
+            {
+                id: "address",
+                name: "Address Book",
+                icon: MapPinIcon,
+                path: "/account?section=address",
+            },
+            {
+                id: "orders",
+                name: "Order History",
+                icon: PackageIcon,
+                path: "/account?section=orders",
+            },
+        ],
+        []
+    );
+};
+
+// Memoized admin sections
+const useAdminSections = () => {
+    return useMemo(
+        () => [
+            {
+                id: "dashboard",
+                name: "Dashboard",
+                icon: ChartLineIcon,
+                path: "/admin?section=dashboard",
+            },
+            {
+                id: "products",
+                name: "Products",
+                icon: PackageIcon,
+                path: "/admin?section=products",
+            },
+            {
+                id: "orders",
+                name: "Orders",
+                icon: StorefrontIcon,
+                path: "/admin?section=orders",
+            },
+        ],
+        []
+    );
+};
+
+// Memoized user dropdown items
+const useUserDropdownItems = () => {
+    return useMemo(
+        () => [
+            {
+                icon: UserIcon,
+                label: "Profile",
+                to: "/account?section=basic",
+            },
+            {
+                icon: MapPinIcon,
+                label: "Address Book",
+                to: "/account?section=address",
+            },
+            {
+                icon: PackageIcon,
+                label: "Orders",
+                to: "/account?section=orders",
+            },
+        ],
+        []
+    );
+};
+
+// Memoized Cart Icon Component
+const CartIcon = memo(function CartIcon({
+    itemCount,
+}: {
+    itemCount: number;
+}) {
+    return (
+        <Link to="/cart">
+            <motion.div
+                className="relative p-2 rounded-full hover:bg-muted/50 transition-colors"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}>
+                <ShoppingCartIcon className="w-6 h-6 text-foreground" />
+                {itemCount > 0 && (
+                    <motion.div
+                        className="absolute -top-1 -right-1 w-5 h-5 bg-primary rounded-full flex items-center justify-center"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{
+                            type: "spring",
+                            stiffness: 500,
+                            damping: 30,
+                        }}>
+                        <span className="text-primary-foreground text-xs font-bold">
+                            {itemCount}
+                        </span>
+                    </motion.div>
+                )}
+            </motion.div>
+        </Link>
+    );
+});
+
+// Memoized User Dropdown Component
+const UserDropdown = memo(function UserDropdown({
+    isUser,
+    userDropdownItems,
+}: {
+    isUser: boolean | null | undefined;
+    userDropdownItems: any[];
+}) {
+    const handleLogout = useCallback(async () => {
+        await logOut();
+    }, []);
+
+    if (isUser === null) {
+        return <div className="w-8 h-8 bg-muted rounded-full animate-pulse" />;
+    }
+
+    if (!isUser) {
+        return (
+            <div className="flex items-center gap-2">
+                <Link to="/login">
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className="rounded-full">
+                        Sign In
+                    </Button>
+                </Link>
+                <Link to="/signup">
+                    <Button
+                        size="sm"
+                        className="rounded-full">
+                        Sign Up
+                    </Button>
+                </Link>
+            </div>
+        );
+    }
+
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    className="rounded-full">
+                    <UserIcon className="w-5 h-5" />
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+                align="end"
+                className="w-56">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                    {userDropdownItems.map((item) => (
+                        <DropdownMenuItem key={item.label}>
+                            <Link
+                                to={item.to}
+                                className="flex items-center">
+                                <item.icon className="w-4 h-4 mr-2" />
+                                {item.label}
+                            </Link>
+                        </DropdownMenuItem>
+                    ))}
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout}>
+                    <SignOutIcon className="w-4 h-4 mr-2" />
+                    Sign Out
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
+    );
+});
+
+// Memoized Mobile Cart Component
+const MobileCart = memo(function MobileCart({
+    itemCount,
+}: {
+    itemCount: number;
+}) {
+    return (
+        <Link to="/cart">
+            <motion.button
+                className="flex items-center space-x-3 text-sm p-3 rounded-lg transition-colors"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}>
+                <ShoppingCartIcon
+                    className="w-6 h-6 text-foreground"
+                    weight="regular"
+                />
+                <span className="text-foreground font-medium">
+                    Cart ({itemCount})
+                </span>
+            </motion.button>
+        </Link>
+    );
+});
+
+// Memoized Mobile User Actions Component
+const MobileUserActions = memo(function MobileUserActions({
+    isUser,
+    itemCount,
+}: {
+    isUser: boolean | null | undefined;
+    itemCount: number;
+}) {
+    if (isUser === null) {
+        return null;
+    }
+
+    if (isUser) {
+        return (
+            <div className="flex items-center justify-between">
+                <MobileCart itemCount={itemCount} />
+                <Link to="/account">
+                    <motion.button
+                        className="flex items-center space-x-3 p-3 text-sm rounded-lg transition-colors"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}>
+                        <UserIcon
+                            className="w-6 h-6 text-foreground"
+                            weight="regular"
+                        />
+                        <span className="text-foreground font-medium">
+                            Account
+                        </span>
+                    </motion.button>
+                </Link>
+            </div>
+        );
+    }
+
+    return (
+        <div className="flex flex-col md:flex-row gap-2">
+            <Link
+                to="/cart"
+                className="w-full">
+                <Button
+                    className="w-full flex items-center gap-2 p-6 hover:bg-accent hover:text-accent-foreground rounded-full"
+                    variant="outline">
+                    <ShoppingCartIcon
+                        className="w-6 h-6"
+                        weight="regular"
+                    />
+                    <span>Cart ({itemCount})</span>
+                </Button>
+            </Link>
+            <Link
+                to="/login"
+                className="w-full">
+                <Button
+                    className="w-full flex items-center gap-2 p-6 hover:bg-primary hover:text-background rounded-full"
+                    variant="outline">
+                    Log In
+                </Button>
+            </Link>
+            <Link
+                to="/signup"
+                className="w-full">
+                <Button className="w-full flex items-center gap-2 p-6 rounded-full text-background bg-foreground hover:bg-foreground/90">
+                    Sign Up
+                </Button>
+            </Link>
+        </div>
+    );
+});
+
+const Header = memo(function Header({ variant = "default" }: HeaderProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [currentScroll, setCurrentScroll] = useState(0);
     const isUser = useUserSession();
-    const { cartTotal, itemCount } = useCartData();
+    const { itemCount } = useCartData();
     const [searchParams] = useSearchParams();
     const [location, setLocation] = useLocation();
+
+    // Memoized navigation items
+    const navItems = useNavigationItems();
+    const accountSections = useAccountSections();
+    const adminSections = useAdminSections();
+    const userDropdownItems = useUserDropdownItems();
 
     // Set initial scroll position when component loads
     useEffect(() => {
@@ -150,87 +447,28 @@ export default function Header({ variant = "default" }: HeaderProps) {
         window.scrollTo(0, currentScroll);
     }
 
-    // Navigation items for the menu
-    const navItems = [
-        { name: "Home", href: "/home" },
-        { name: "Shop", href: "/shop" },
-        { name: "About", href: "/about" },
-        { name: "Contact", href: "/contact" },
-    ];
-
-    // Account sections for account variant
-    const accountSections = [
-        {
-            id: "basic",
-            name: "Profile",
-            icon: UserIcon,
-            path: "/account?section=basic",
-        },
-        {
-            id: "address",
-            name: "Address Book",
-            icon: MapPinIcon,
-            path: "/account?section=address",
-        },
-        {
-            id: "orders",
-            name: "Order History",
-            icon: PackageIcon,
-            path: "/account?section=orders",
-        },
-    ];
-
-    const userDropdownItems = [
-        {
-            icon: UserIcon,
-            label: "Profile",
-            to: "/account?section=basic",
-        },
-        {
-            icon: MapPinIcon,
-            label: "Address Book",
-            to: "/account?section=address",
-        },
-        {
-            icon: PackageIcon,
-            label: "Orders",
-            to: "/account?section=orders",
-        },
-    ];
-
     // Get active section from search params
     const activeSection = searchParams.get("section") || "basic";
 
     // Function to update URL with section parameter
-    const updateSection = (sectionId: string) => {
-        const newSearchParams = new URLSearchParams(location.split("?")[1]);
-        newSearchParams.set("section", sectionId);
-        const newQuery = newSearchParams.toString();
-        const newPath = newQuery ? `?${newQuery}` : "";
-        setLocation(`/account${newPath}`);
-    };
+    const updateSection = useCallback(
+        (sectionId: string) => {
+            const newSearchParams = new URLSearchParams(location.split("?")[1]);
+            newSearchParams.set("section", sectionId);
+            const newQuery = newSearchParams.toString();
+            const newPath = newQuery ? `?${newQuery}` : "";
+            setLocation(`/account${newPath}`);
+        },
+        [location, setLocation]
+    );
 
-    // Admin sections for admin variant
-    const adminSections = [
-        {
-            id: "dashboard",
-            name: "Dashboard",
-            icon: ChartLineIcon,
-            path: "/admin?section=dashboard",
-        },
-        {
-            id: "products",
-            name: "Products",
-            icon: PackageIcon,
-            path: "/admin?section=products",
-        },
-        {
-            id: "orders",
-            name: "Orders",
-            icon: StorefrontIcon,
-            path: "/admin?section=orders",
-        },
-    ];
+    // Memoized menu toggle handler
+    const toggleMenu = useCallback(() => {
+        setIsMenuOpen(!isMenuOpen);
+        setCurrentScroll(window.scrollY);
+    }, [isMenuOpen]);
+
+    // Memoized section click handler
 
     // Account variant header
     if (variant === "account") {
@@ -316,10 +554,7 @@ export default function Header({ variant = "default" }: HeaderProps) {
                         {/* Mobile Menu Button */}
                         <motion.button
                             className="xl:hidden p-2 rounded-lg hover:bg-muted/50 transition-colors"
-                            onClick={() => {
-                                setIsMenuOpen(!isMenuOpen);
-                                setCurrentScroll(window.scrollY);
-                            }}
+                            onClick={toggleMenu}
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}>
                             <AnimatePresence mode="wait">
@@ -508,10 +743,7 @@ export default function Header({ variant = "default" }: HeaderProps) {
                         {/* Mobile Menu Button */}
                         <motion.button
                             className="xl:hidden p-2 rounded-lg hover:bg-destructive/10 transition-colors"
-                            onClick={() => {
-                                setIsMenuOpen(!isMenuOpen);
-                                setCurrentScroll(window.scrollY);
-                            }}
+                            onClick={toggleMenu}
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}>
                             <AnimatePresence mode="wait">
@@ -567,10 +799,7 @@ export default function Header({ variant = "default" }: HeaderProps) {
                                                 transition={{
                                                     duration: 0.3,
                                                     delay: 0.1 + index * 0.1,
-                                                }}
-                                                onClick={() =>
-                                                    setIsMenuOpen(false)
-                                                }>
+                                                }}>
                                                 <Link
                                                     to={section.path}
                                                     className={cn(
@@ -657,158 +886,32 @@ export default function Header({ variant = "default" }: HeaderProps) {
 
                     {/* Desktop User and Cart Dropdowns */}
                     <div className="hidden xl:flex items-center space-x-4">
-                        {/* Cart Dropdown */}
+                        {/* Cart Icon */}
                         <motion.div
                             initial={{ opacity: 0, scale: 0.8 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ duration: 0.5, delay: 0.3 }}>
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <motion.button
-                                        className="relative p-3 rounded-full hover:bg-muted/50 transition-colors"
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}>
-                                        <ShoppingCartIcon
-                                            className="w-5 h-5 text-foreground"
-                                            weight="regular"
-                                        />
-                                        {itemCount > 0 && (
-                                            <span className="absolute -top-1 -right-1 bg-accent text-accent-foreground text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                                                {itemCount}
-                                            </span>
-                                        )}
-                                    </motion.button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent
-                                    align="end"
-                                    className="w-64">
-                                    <DropdownMenuLabel>
-                                        Shopping Cart
-                                    </DropdownMenuLabel>
-                                    <DropdownMenuGroup className="space-y-2 py-2">
-                                        <DropdownMenuItem asChild>
-                                            <Link
-                                                to="/cart"
-                                                className="flex items-center">
-                                                <PackageIcon
-                                                    className="mr-2 h-4 w-4 text-foreground"
-                                                    weight="fill"
-                                                />
-                                                <span>
-                                                    View Cart ({itemCount}{" "}
-                                                    items)
-                                                </span>
-                                            </Link>
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem>
-                                            <HeartIcon
-                                                className="mr-2 h-4 w-4 text-foreground"
-                                                weight="fill"
-                                            />
-                                            <span>Wishlist</span>
-                                        </DropdownMenuItem>
-                                    </DropdownMenuGroup>
-                                    <DropdownMenuSeparator />
-                                    <DropdownMenuGroup className="p-4 py-2 text-sm">
-                                        <span className="font-semibold">
-                                            Total: ₦ {cartTotal.toFixed(2)}
-                                        </span>
-                                    </DropdownMenuGroup>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
+                            <CartIcon
+                                itemCount={itemCount}
+                            />
                         </motion.div>
 
                         {/* User Dropdown or Auth Buttons */}
-                        {isUser === null ? (
-                            // Loading state
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.8 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ duration: 0.5, delay: 0.4 }}>
-                                <div className="p-3 rounded-full bg-muted/30 animate-pulse w-10 h-10" />
-                            </motion.div>
-                        ) : isUser ? (
-                            // User is authenticated
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.8 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ duration: 0.5, delay: 0.4 }}>
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <motion.button
-                                            className="p-3 rounded-full hover:bg-muted/50 transition-colors"
-                                            whileHover={{ scale: 1.05 }}
-                                            whileTap={{ scale: 0.95 }}>
-                                            <UserIcon
-                                                className="w-5 h-5 text-foreground"
-                                                weight="regular"
-                                            />
-                                        </motion.button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent
-                                        align="end"
-                                        className="w-56">
-                                        <DropdownMenuLabel>
-                                            My Account
-                                        </DropdownMenuLabel>
-                                        <DropdownMenuSeparator />
-                                        {/* Modular user dropdown menu */}
-                                        {userDropdownItems.map((item) => (
-                                            <DropdownMenuItem
-                                                asChild
-                                                key={item.label}>
-                                                <Link
-                                                    to={item.to}
-                                                    className="flex items-center">
-                                                    <item.icon
-                                                        className="mr-2 h-4 w-4 text-foreground"
-                                                        weight="regular"
-                                                    />
-                                                    <span>{item.label}</span>
-                                                </Link>
-                                            </DropdownMenuItem>
-                                        ))}
-                                        <DropdownMenuSeparator />
-                                        <DropdownMenuItem onClick={logOut}>
-                                            <SignOutIcon
-                                                className="mr-2 h-4 w-4 text-foreground"
-                                                weight="fill"
-                                            />
-                                            <span>Sign Out</span>
-                                        </DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                            </motion.div>
-                        ) : (
-                            // Not authenticated
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.8 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ duration: 0.5, delay: 0.4 }}
-                                className="flex gap-2">
-                                <Link href="/signup">
-                                    <Button className="rounded-full hover:bg-foreground/90 bg-foreground text-background p-5">
-                                        Sign Up
-                                    </Button>
-                                </Link>
-                                <Link href="/login">
-                                    <Button
-                                        className="rounded-full p-5 shadow-none hover:bg-primary hover:text-background"
-                                        variant="outline">
-                                        Log In
-                                    </Button>
-                                </Link>
-                            </motion.div>
-                        )}
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.5, delay: 0.4 }}>
+                            <UserDropdown
+                                isUser={isUser}
+                                userDropdownItems={userDropdownItems}
+                            />
+                        </motion.div>
                     </div>
 
                     {/* Mobile Menu Button */}
                     <motion.button
                         className="xl:hidden p-2 rounded-lg hover:bg-muted/50 transition-colors"
-                        onClick={() => {
-                            setIsMenuOpen(!isMenuOpen);
-                            setCurrentScroll(window.scrollY);
-                        }}
+                        onClick={toggleMenu}
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}>
                         <AnimatePresence mode="wait">
@@ -861,8 +964,7 @@ export default function Header({ variant = "default" }: HeaderProps) {
                                         transition={{
                                             duration: 0.3,
                                             delay: index * 0.1,
-                                        }}
-                                        onClick={() => setIsMenuOpen(false)}>
+                                        }}>
                                         <Link
                                             to={item.href}
                                             className="flex items-center space-x-4 p-6 text-foreground hover:bg-primary hover:text-background font-bold rounded-full transition-colors duration-200 text-sm">
@@ -874,82 +976,10 @@ export default function Header({ variant = "default" }: HeaderProps) {
                                 {/* Mobile User Actions and Cart */}
                                 <div className="pt-4 border-t border-border">
                                     <div className="flex flex-col gap-2 p-4 sm:px-32 md:px-16">
-                                        {/* Cart Button */}
-                                        {/* User Actions */}
-                                        {isUser === null ? null : isUser ? (
-                                            <div className="flex items-center justify-between">
-                                                <Link to="/cart">
-                                                    <motion.button
-                                                        className="flex items-center space-x-3 text-sm p-3 rounded-lg transition-colors"
-                                                        whileHover={{
-                                                            scale: 1.05,
-                                                        }}
-                                                        whileTap={{
-                                                            scale: 0.95,
-                                                        }}>
-                                                        <ShoppingCartIcon
-                                                            className="w-6 h-6 text-foreground"
-                                                            weight="regular"
-                                                        />
-                                                        <span className="text-foreground font-medium">
-                                                            Cart ({itemCount})
-                                                        </span>
-                                                    </motion.button>
-                                                </Link>
-                                                <Link to="/account">
-                                                    <motion.button
-                                                        className="flex items-center space-x-3 p-3 text-sm rounded-lg transition-colors"
-                                                        whileHover={{
-                                                            scale: 1.05,
-                                                        }}
-                                                        whileTap={{
-                                                            scale: 0.95,
-                                                        }}>
-                                                        <UserIcon
-                                                            className="w-6 h-6 text-foreground"
-                                                            weight="regular"
-                                                        />
-                                                        <span className="text-foreground font-medium">
-                                                            Account
-                                                        </span>
-                                                    </motion.button>
-                                                </Link>
-                                            </div>
-                                        ) : (
-                                            <div className="flex flex-col md:flex-row gap-2">
-                                                <Link
-                                                    to="/cart"
-                                                    className={"w-full"}>
-                                                    <Button
-                                                        className="w-full flex items-center gap-2 p-6 hover:bg-accent hover:text-accent-foreground rounded-full"
-                                                        variant="outline">
-                                                        <ShoppingCartIcon
-                                                            className="w-6 h-6"
-                                                            weight="regular"
-                                                        />
-                                                        <span>
-                                                            Cart ({itemCount})
-                                                        </span>
-                                                    </Button>
-                                                </Link>
-                                                <Link
-                                                    to="/login"
-                                                    className={"w-full"}>
-                                                    <Button
-                                                        className="w-full flex items-center gap-2 p-6 hover:bg-primary hover:text-background rounded-full"
-                                                        variant="outline">
-                                                        Log In
-                                                    </Button>
-                                                </Link>
-                                                <Link
-                                                    to="/signup"
-                                                    className={"w-full"}>
-                                                    <Button className="w-full flex items-center gap-2 p-6 rounded-full text-background bg-foreground hover:bg-foreground/90">
-                                                        Sign Up
-                                                    </Button>
-                                                </Link>
-                                            </div>
-                                        )}
+                                        <MobileUserActions
+                                            isUser={isUser}
+                                            itemCount={itemCount}
+                                        />
                                     </div>
                                 </div>
                             </div>
@@ -959,4 +989,6 @@ export default function Header({ variant = "default" }: HeaderProps) {
             </div>
         </motion.header>
     );
-}
+});
+
+export default Header;
