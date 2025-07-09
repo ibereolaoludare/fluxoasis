@@ -29,7 +29,6 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Link, useLocation, useSearchParams } from "wouter";
-import { navigate } from "wouter/use-browser-location";
 import { checkUser, logOut, supabase } from "@/supabase";
 import { Button } from "./button";
 import { cn } from "@/lib/utils";
@@ -436,18 +435,6 @@ export default function Header({ variant = "default" }: HeaderProps) {
 
     // Admin variant header
     if (variant === "admin") {
-        const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
-        useEffect(() => {
-            (async () => {
-                const { data, error } = await supabase.auth.getUser();
-                if (error || !data?.user?.user_metadata?.admin) {
-                    navigate("/home");
-                } else {
-                    setIsAdmin(true);
-                }
-            })();
-        }, []);
-        if (!isAdmin) return null;
         return (
             <motion.header
                 className="sticky top-0 left-0 right-0 z-50 bg-background px-4 sm:px-8 xl:px-32"
