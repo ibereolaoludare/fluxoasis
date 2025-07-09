@@ -272,6 +272,7 @@ export default function Shop() {
                                         <ProductCard
                                             id={product.id}
                                             name={product.name}
+                                            category={product.category}
                                             price={product.price}
                                             image={
                                                 (product as any).image ||

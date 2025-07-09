@@ -13,6 +13,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import ProductCard from "@/components/ui/product-card";
+import { useState, useEffect } from "react";
+import { supabase } from "@/supabase";
+import type { Tables } from "@/supabase.type";
 
 export default function Home() {
     const drinkImages = [
@@ -91,56 +94,36 @@ export default function Home() {
         },
     ];
 
-    const featuredProducts = [
-        {
-            id: 1,
-            name: "Coca Cola Classic",
-            price: 2.99,
-            image: "https://images.unsplash.com/photo-1527960471264-932f39eb5846?q=80&w=2340&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-            rating: 4.8,
-            reviews: 124,
-        },
-        {
-            id: 2,
-            name: "Pepsi Max",
-            price: 2.49,
-            image: "https://images.unsplash.com/photo-1622543925917-763c34d1a86e?q=80&w=987&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-            rating: 4.6,
-            reviews: 89,
-        },
-        {
-            id: 3,
-            name: "Fanta Orange",
-            price: 2.79,
-            image: "https://plus.unsplash.com/premium_photo-1667543228378-ec4478ab2845?q=80&w=2344&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-            rating: 4.7,
-            reviews: 156,
-        },
-        {
-            id: 4,
-            name: "Sprite Lemon",
-            price: 2.59,
-            image: "https://images.unsplash.com/photo-1616118132534-381148898bb4?q=80&w=1364&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-            rating: 4.5,
-            reviews: 67,
-        },
-        {
-            id: 5,
-            name: "Red Bull Energy",
-            price: 3.99,
-            image: "https://images.unsplash.com/photo-1622543925917-763c34d1a86e?q=80&w=987&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-            rating: 4.9,
-            reviews: 203,
-        },
-        {
-            id: 6,
-            name: "Monster Energy",
-            price: 3.49,
-            image: "https://images.unsplash.com/photo-1527960471264-932f39eb5846?q=80&w=2340&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-            rating: 4.7,
-            reviews: 178,
-        },
-    ];
+    const [featuredProducts, setFeaturedProducts] = useState<
+        Tables<"products">[]
+    >([]);
+    const [loading, setLoading] = useState(true);
+
+    // Fetch first 3 products from database
+    useEffect(() => {
+        const fetchFeaturedProducts = async () => {
+            try {
+                setLoading(true);
+                const { data, error } = await supabase
+                    .from("products")
+                    .select("*")
+                    .order("id", { ascending: true })
+                    .limit(3);
+
+                if (error) {
+                    console.error("Error fetching featured products:", error);
+                } else {
+                    setFeaturedProducts(data || []);
+                }
+            } catch (error) {
+                console.error("Error fetching featured products:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchFeaturedProducts();
+    }, []);
 
     const whyChooseUs = [
         {
@@ -519,12 +502,29 @@ export default function Home() {
                             whileInView={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8, delay: 0.2 }}
                             viewport={{ once: true }}>
-                            {featuredProducts.map((product) => (
-                                <ProductCard
-                                    key={product.id}
-                                    {...product}
-                                />
-                            ))}
+                            {loading
+                                ? // Loading skeleton
+                                  Array.from({ length: 3 }).map((_, index) => (
+                                      <motion.div
+                                          key={index}
+                                          className="bg-muted/30 rounded-2xl p-4 animate-pulse"
+                                          initial={{ opacity: 0, y: 20 }}
+                                          animate={{ opacity: 1, y: 0 }}
+                                          transition={{ delay: index * 0.1 }}>
+                                          <div className="h-48 bg-muted rounded-xl mb-4"></div>
+                                          <div className="space-y-2">
+                                              <div className="h-4 bg-muted rounded w-3/4"></div>
+                                              <div className="h-4 bg-muted rounded w-1/2"></div>
+                                              <div className="h-4 bg-muted rounded w-1/4"></div>
+                                          </div>
+                                      </motion.div>
+                                  ))
+                                : featuredProducts.map((product) => (
+                                      <ProductCard
+                                          key={product.id}
+                                          {...product}
+                                      />
+                                  ))}
                         </motion.div>
 
                         {/* View All Products Button */}

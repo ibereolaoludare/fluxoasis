@@ -34,6 +34,13 @@ import { checkUser, logOut, supabase } from "@/supabase";
 import { Button } from "./button";
 import { cn } from "@/lib/utils";
 
+// Cart item interface
+interface CartItem {
+    id: number;
+    quantity: number;
+    unit: string;
+}
+
 // Custom hook for user session
 function useUserSession() {
     const [isUser, setIsUser] = useState<boolean | null | undefined>(null);
@@ -50,6 +57,76 @@ function useUserSession() {
     return isUser;
 }
 
+// Custom hook for cart data
+function useCartData() {
+    const [cartItems, setCartItems] = useState<CartItem[]>([]);
+    const [cartTotal, setCartTotal] = useState(0);
+
+    const loadCartData = async () => {
+        try {
+            // Get cart items from localStorage
+            const cartItemsData: CartItem[] = JSON.parse(
+                localStorage.getItem("cart-items") || "[]"
+            );
+            setCartItems(cartItemsData);
+
+            if (cartItemsData.length === 0) {
+                setCartTotal(0);
+                return;
+            }
+
+            // Fetch product details to calculate total
+            const productIds = cartItemsData.map((item) => item.id);
+            const { data: products, error } = await supabase
+                .from("products")
+                .select("id, price")
+                .in("id", productIds);
+
+            if (error || !products) {
+                setCartTotal(0);
+                return;
+            }
+
+            // Calculate total
+            const total = cartItemsData.reduce((sum, cartItem) => {
+                const product = products.find((p) => p.id === cartItem.id);
+                return sum + (product?.price || 0) * cartItem.quantity;
+            }, 0);
+
+            setCartTotal(total);
+        } catch (error) {
+            console.error("Error loading cart data:", error);
+            setCartTotal(0);
+        }
+    };
+
+    useEffect(() => {
+        loadCartData();
+
+        // Listen for storage changes
+        const handleStorageChange = () => {
+            loadCartData();
+        };
+
+        // Listen for custom cart update event
+        const handleCartUpdate = () => {
+            loadCartData();
+        };
+
+        window.addEventListener("storage", handleStorageChange);
+        window.addEventListener("cartUpdated", handleCartUpdate);
+
+        return () => {
+            window.removeEventListener("storage", handleStorageChange);
+            window.removeEventListener("cartUpdated", handleCartUpdate);
+        };
+    }, []);
+
+    const itemCount = cartItems.length;
+
+    return { cartItems, cartTotal, itemCount };
+}
+
 interface HeaderProps {
     variant?: "default" | "account" | "admin";
 }
@@ -58,6 +135,7 @@ export default function Header({ variant = "default" }: HeaderProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [currentScroll, setCurrentScroll] = useState(0);
     const isUser = useUserSession();
+    const { cartTotal, itemCount } = useCartData();
     const [searchParams] = useSearchParams();
     const [location, setLocation] = useLocation();
 
@@ -577,9 +655,11 @@ export default function Header({ variant = "default" }: HeaderProps) {
                                             className="w-5 h-5 text-foreground"
                                             weight="regular"
                                         />
-                                        <span className="absolute -top-1 -right-1 bg-accent text-accent-foreground text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                                            3
-                                        </span>
+                                        {itemCount > 0 && (
+                                            <span className="absolute -top-1 -right-1 bg-accent text-accent-foreground text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                                                {itemCount}
+                                            </span>
+                                        )}
                                     </motion.button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent
@@ -588,14 +668,20 @@ export default function Header({ variant = "default" }: HeaderProps) {
                                     <DropdownMenuLabel>
                                         Shopping Cart
                                     </DropdownMenuLabel>
-                                    {/* <DropdownMenuSeparator /> */}
                                     <DropdownMenuGroup className="space-y-2 py-2">
-                                        <DropdownMenuItem>
-                                            <PackageIcon
-                                                className="mr-2 h-4 w-4 text-foreground"
-                                                weight="fill"
-                                            />
-                                            <span>View Cart (3 items)</span>
+                                        <DropdownMenuItem asChild>
+                                            <Link
+                                                to="/cart"
+                                                className="flex items-center">
+                                                <PackageIcon
+                                                    className="mr-2 h-4 w-4 text-foreground"
+                                                    weight="fill"
+                                                />
+                                                <span>
+                                                    View Cart ({itemCount}{" "}
+                                                    items)
+                                                </span>
+                                            </Link>
                                         </DropdownMenuItem>
                                         <DropdownMenuItem>
                                             <HeartIcon
@@ -608,7 +694,7 @@ export default function Header({ variant = "default" }: HeaderProps) {
                                     <DropdownMenuSeparator />
                                     <DropdownMenuGroup className="p-4 py-2 text-sm">
                                         <span className="font-semibold">
-                                            Total: $299.99
+                                            Total: ₦ {cartTotal.toFixed(2)}
                                         </span>
                                     </DropdownMenuGroup>
                                 </DropdownMenuContent>
@@ -775,22 +861,24 @@ export default function Header({ variant = "default" }: HeaderProps) {
                                         {/* User Actions */}
                                         {isUser === null ? null : isUser ? (
                                             <div className="flex items-center justify-between">
-                                                <motion.button
-                                                    className="flex items-center space-x-3 text-sm p-3 rounded-lg transition-colors"
-                                                    whileHover={{
-                                                        scale: 1.05,
-                                                    }}
-                                                    whileTap={{
-                                                        scale: 0.95,
-                                                    }}>
-                                                    <ShoppingCartIcon
-                                                        className="w-6 h-6 text-foreground"
-                                                        weight="regular"
-                                                    />
-                                                    <span className="text-foreground font-medium">
-                                                        Cart (3)
-                                                    </span>
-                                                </motion.button>
+                                                <Link to="/cart">
+                                                    <motion.button
+                                                        className="flex items-center space-x-3 text-sm p-3 rounded-lg transition-colors"
+                                                        whileHover={{
+                                                            scale: 1.05,
+                                                        }}
+                                                        whileTap={{
+                                                            scale: 0.95,
+                                                        }}>
+                                                        <ShoppingCartIcon
+                                                            className="w-6 h-6 text-foreground"
+                                                            weight="regular"
+                                                        />
+                                                        <span className="text-foreground font-medium">
+                                                            Cart ({itemCount})
+                                                        </span>
+                                                    </motion.button>
+                                                </Link>
                                                 <Link to="account">
                                                     <motion.button
                                                         className="flex items-center space-x-3 p-3 text-sm rounded-lg transition-colors"
@@ -822,7 +910,9 @@ export default function Header({ variant = "default" }: HeaderProps) {
                                                             className="w-6 h-6"
                                                             weight="regular"
                                                         />
-                                                        <span>Cart</span>
+                                                        <span>
+                                                            Cart ({itemCount})
+                                                        </span>
                                                     </Button>
                                                 </Link>
                                                 <Link
