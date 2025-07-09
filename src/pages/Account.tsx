@@ -166,7 +166,18 @@ function ProfileSection() {
                 );
             } else {
                 setRole(newRole);
-                toast.success(`Role updated to ${newRole}.`);
+                // Refresh session to update JWT with new user_metadata
+                const { error: refreshError } =
+                    await supabase.auth.refreshSession();
+                if (refreshError) {
+                    toast.error(
+                        "Session refresh failed: " + refreshError.message
+                    );
+                } else {
+                    toast.success(
+                        `Role updated to ${newRole}. (Session refreshed)`
+                    );
+                }
             }
         } catch {
             toast.error("Error updating role.");
