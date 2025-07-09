@@ -251,34 +251,34 @@ export default function Header({ variant = "default" }: HeaderProps) {
                 <div className="p-4 sm:p-6 lg:p-8">
                     <div className="flex justify-between items-center h-16">
                         {/* Logo Section */}
-                        <motion.div
-                            className="flex items-center"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}>
-                            <Link to="/home">
+                        <Link to="/home">
+                            <motion.div
+                                className="flex items-center"
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}>
                                 <motion.button
                                     className="p-2 rounded-full hover:bg-muted/50 transition-colors mr-3"
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}>
                                     <ArrowLeftIcon className="w-5 h-5 text-foreground" />
                                 </motion.button>
-                            </Link>
-                            <motion.div
-                                className="w-6 h-6 bg-primary rounded-lg flex items-center justify-center"
-                                animate={{ rotate: [0, 360] }}
-                                transition={{
-                                    duration: 20,
-                                    repeat: Infinity,
-                                    ease: "linear",
-                                }}>
-                                <span className="text-primary-foreground font-bold text-sm">
-                                    F
+                                <motion.div
+                                    className="w-6 h-6 bg-primary rounded-lg flex items-center justify-center"
+                                    animate={{ rotate: [0, 360] }}
+                                    transition={{
+                                        duration: 20,
+                                        repeat: Infinity,
+                                        ease: "linear",
+                                    }}>
+                                    <span className="text-primary-foreground font-bold text-sm">
+                                        F
+                                    </span>
+                                </motion.div>
+                                <span className="ml-2 text-xl sm:text-2xl xl:text-3xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+                                    FluxOasis
                                 </span>
                             </motion.div>
-                            <span className="ml-2 text-xl sm:text-2xl xl:text-3xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
-                                FluxOasis
-                            </span>
-                        </motion.div>
+                        </Link>
 
                         {/* Account Navigation Menu */}
                         <NavigationMenu className="hidden xl:flex">
@@ -457,37 +457,38 @@ export default function Header({ variant = "default" }: HeaderProps) {
                 <div className="p-4 sm:p-6 lg:p-8">
                     <div className="flex justify-between items-center h-16">
                         {/* Logo Section */}
-                        <motion.div
-                            className="flex items-center"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}>
-                            <Link to="/account">
+                        <Link to="/account">
+                            <motion.div
+                                className="flex items-center"
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}>
                                 <motion.button
                                     className="p-2 rounded-full hover:bg-destructive/10 transition-colors mr-3"
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}>
                                     <ArrowLeftIcon className="w-5 h-5 text-destructive" />
                                 </motion.button>
-                            </Link>
-                            <motion.div
-                                className="w-6 h-6 bg-destructive rounded-lg flex items-center justify-center"
-                                animate={{ rotate: [0, 360] }}
-                                transition={{
-                                    duration: 20,
-                                    repeat: Infinity,
-                                    ease: "linear",
-                                }}>
-                                <span className="text-destructive-foreground font-bold text-sm">
-                                    A
+                                <motion.div
+                                    className="w-6 h-6 bg-destructive rounded-lg flex items-center justify-center"
+                                    animate={{ rotate: [0, 360] }}
+                                    transition={{
+                                        duration: 20,
+                                        repeat: Infinity,
+                                        ease: "linear",
+                                    }}>
+                                    <span className="text-destructive-foreground font-bold text-sm">
+                                        A
+                                    </span>
+                                </motion.div>
+                                <span className="ml-2 text-xl sm:text-2xl xl:text-3xl font-bold bg-gradient-to-r from-destructive to-destructive/80 bg-clip-text text-transparent">
+                                    FluxOasis
+                                </span>
+                                <span className="ml-2 text-xs text-muted-foreground font-medium hidden sm:inline">
+                                    Admin Panel
                                 </span>
                             </motion.div>
-                            <span className="ml-2 text-xl sm:text-2xl xl:text-3xl font-bold bg-gradient-to-r from-destructive to-destructive/80 bg-clip-text text-transparent">
-                                FluxOasis
-                            </span>
-                            <span className="ml-2 text-xs text-muted-foreground font-medium hidden sm:inline">
-                                Admin Panel
-                            </span>
-                        </motion.div>
+                        </Link>
+
                         {/* Admin Navigation Menu */}
                         <NavigationMenu className="hidden xl:flex">
                             <NavigationMenuList className="space-x-2 bg-muted p-2 rounded-full">
@@ -626,26 +627,28 @@ export default function Header({ variant = "default" }: HeaderProps) {
             <div className="p-4 sm:p-6 lg:p-8">
                 <div className="flex justify-between items-center h-16">
                     {/* Logo Section */}
-                    <motion.div
-                        className="flex items-center"
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}>
+                    <Link to="/home">
                         <motion.div
-                            className="w-6 h-6 bg-primary rounded-lg flex items-center justify-center"
-                            animate={{ rotate: [0, 360] }}
-                            transition={{
-                                duration: 20,
-                                repeat: Infinity,
-                                ease: "linear",
-                            }}>
-                            <span className="text-primary-foreground font-bold text-sm">
-                                F
+                            className="flex items-center"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}>
+                            <motion.div
+                                className="w-6 h-6 bg-primary rounded-lg flex items-center justify-center"
+                                animate={{ rotate: [0, 360] }}
+                                transition={{
+                                    duration: 20,
+                                    repeat: Infinity,
+                                    ease: "linear",
+                                }}>
+                                <span className="text-primary-foreground font-bold text-sm">
+                                    F
+                                </span>
+                            </motion.div>
+                            <span className="ml-2 text-xl sm:text-2xl xl:text-3xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+                                FluxOasis
                             </span>
                         </motion.div>
-                        <span className="ml-2 text-xl sm:text-2xl xl:text-3xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
-                            FluxOasis
-                        </span>
-                    </motion.div>
+                    </Link>
 
                     {/* Desktop Navigation Menu */}
                     <NavigationMenu className="hidden xl:flex">

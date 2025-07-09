@@ -11,6 +11,7 @@ import {
     EyeIcon,
     UserIcon,
     PhoneIcon,
+    ArrowLeftIcon,
 } from "@phosphor-icons/react";
 import { CheckedState } from "@radix-ui/react-checkbox";
 import { Link } from "wouter";
@@ -131,10 +132,22 @@ export default function SignUp() {
     };
 
     return (
-        <div className="h-screen bg-background flex items-center justify-center p-4 overflow-y-auto">
-            <div className="w-full max-w-sm">
+        <motion.div
+            className="h-screen bg-background flex items-center justify-center p-4 overflow-y-auto"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}>
+            <motion.div
+                className="w-full max-w-sm"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}>
                 {/* Header */}
-                <div className="text-center mb-8">
+                <motion.div
+                    className="text-center mb-8"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.2 }}>
                     <Link to="/home">
                         <motion.div
                             className="flex items-center justify-center mb-6"
@@ -150,16 +163,28 @@ export default function SignUp() {
                             </span>
                         </motion.div>
                     </Link>
-                    <h1 className="text-2xl font-bold text-foreground mb-1">
+                    <motion.h1
+                        className="text-2xl font-bold text-foreground mb-1"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.3 }}>
                         Create your account
-                    </h1>
-                    <p className="text-muted-foreground">
+                    </motion.h1>
+                    <motion.p
+                        className="text-muted-foreground"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.35 }}>
                         Sign up to get started
-                    </p>
-                </div>
+                    </motion.p>
+                </motion.div>
 
                 {/* Stepper Indicator */}
-                <div className="flex justify-center mb-6 gap-2">
+                <motion.div
+                    className="flex justify-center mb-6 gap-2"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.4 }}>
                     <div
                         className={`w-8 h-1 rounded-full transition-all duration-300 ${
                             step === 1 ? "bg-primary" : "bg-muted-foreground/30"
@@ -168,12 +193,17 @@ export default function SignUp() {
                         className={`w-8 h-1 rounded-full transition-all duration-300 ${
                             step === 2 ? "bg-primary" : "bg-muted-foreground/30"
                         }`}></div>
-                </div>
+                </motion.div>
 
                 {/* Two Step Sign Up Form */}
-                <div className="space-y-4">
+                <motion.form
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.45 }}
+                    onSubmit={handleSubmit}
+                    className="space-y-4">
                     {step === 1 && (
-                        <form
+                        <motion.form
                             onSubmit={handleNext}
                             className="space-y-4 sm:space-y-6">
                             {/* Name Field */}
@@ -268,14 +298,14 @@ export default function SignUp() {
                             </div>
                             <Button
                                 type="submit"
-                                className="w-full h-11 font-medium"
+                                className="w-full !p-6 rounded-full font-medium"
                                 disabled={isLoading}>
                                 Next
                             </Button>
-                        </form>
+                        </motion.form>
                     )}
                     {step === 2 && (
-                        <form
+                        <motion.form
                             onSubmit={handleSubmit}
                             className="space-y-4 sm:space-y-6">
                             {/* Password Field */}
@@ -400,14 +430,15 @@ export default function SignUp() {
                                 <Button
                                     type="button"
                                     variant="outline"
-                                    className="w-1/2"
+                                    className="w-1/2 !p-6 rounded-full font-medium shadow-none hover:bg-foreground hover:text-background"
                                     onClick={handleBack}
                                     disabled={isLoading}>
+                                    <ArrowLeftIcon />
                                     Back
                                 </Button>
                                 <Button
                                     type="submit"
-                                    className="w-1/2 font-medium"
+                                    className="w-1/2 !p-6 rounded-full font-medium"
                                     disabled={isLoading}>
                                     {isLoading ? (
                                         <div className="flex items-center space-x-2">
@@ -419,13 +450,13 @@ export default function SignUp() {
                                     )}
                                 </Button>
                             </div>
-                        </form>
+                        </motion.form>
                     )}
                     {/* Social Sign Up Button */}
                     <div>
                         <Button
                             variant="outline"
-                            className="w-full shadow-none !p-6"
+                            className="w-full shadow-none !p-6 rounded-full font-medium"
                             disabled={isLoading}>
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -446,8 +477,8 @@ export default function SignUp() {
                             </Link>
                         </p>
                     </div>
-                </div>
-            </div>
-        </div>
+                </motion.form>
+            </motion.div>
+        </motion.div>
     );
 }

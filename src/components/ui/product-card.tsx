@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRightIcon } from "@phosphor-icons/react";
 import { Link } from "wouter";
 import { formatPrice } from "@/lib/utils";
+import { motion } from "motion/react";
 
 interface ProductCardProps {
     id: number;
@@ -26,17 +27,28 @@ export default function ProductCard({
         }/storage/v1/object/public/products/images/${id}.jpg`;
 
     return (
-        <div
+        <motion.div
             className="relative bg-background rounded-4xl overflow-hidden border border-border/50 transition-all duration-200"
-            id={id.toString()}>
+            id={id.toString()}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            whileHover={{
+                scale: 1.03,
+                boxShadow: "0 4px 24px rgba(0,0,0,0.06)",
+            }}
+            whileTap={{ scale: 0.98 }}>
             {/* Product Image Container */}
-            <div className="relative h-48 p-4 sm:h-56 overflow-hidden flex items-center justify-center">
+            <motion.div
+                className="relative h-48 p-4 sm:h-56 overflow-hidden flex items-center justify-center"
+                whileHover={{ scale: 1.04 }}
+                transition={{ duration: 0.2 }}>
                 <img
                     src={imageUrl}
                     alt={name}
                     className="w-full h-full object-cover bg-muted rounded-3xl transition-transform duration-300"
                 />
-            </div>
+            </motion.div>
             {/* Product Content */}
             <div className="p-5 py-2 flex flex-col">
                 <div>
@@ -52,13 +64,17 @@ export default function ProductCard({
                     <Link
                         to={"/item/" + id}
                         asChild>
-                        <Button className="!p-6 w-full rounded-full px-5 py-2 text-sm font-semibold transition-all duration-200 shadow-none">
-                            View Details
-                            <ArrowRightIcon />
-                        </Button>
+                        <motion.div
+                            whileHover={{ scale: 1.04 }}
+                            whileTap={{ scale: 0.97 }}>
+                            <Button className="!p-6 w-full rounded-full px-5 py-2 text-sm font-semibold transition-all duration-200 shadow-none">
+                                View Details
+                                <ArrowRightIcon />
+                            </Button>
+                        </motion.div>
                     </Link>
                 </div>
             </div>
-        </div>
+        </motion.div>
     );
 }

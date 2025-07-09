@@ -92,10 +92,22 @@ export default function LogIn() {
     };
 
     return (
-        <div className="h-screen bg-background flex items-center justify-center p-4 overflow-y-auto">
-            <div className="w-full max-w-sm">
+        <motion.div
+            className="h-screen bg-background flex items-center justify-center p-4 overflow-y-auto"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}>
+            <motion.div
+                className="w-full max-w-sm"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}>
                 {/* Header */}
-                <div className="text-center mb-8">
+                <motion.div
+                    className="text-center mb-8"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.2 }}>
                     <Link to="/home">
                         <motion.div
                             className="flex items-center justify-center mb-6"
@@ -111,160 +123,167 @@ export default function LogIn() {
                             </span>
                         </motion.div>
                     </Link>
-                    <h1 className="text-2xl font-bold text-foreground mb-1">
+                    <motion.h1
+                        className="text-2xl font-bold text-foreground mb-1"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.3 }}>
                         Welcome back
-                    </h1>
-                    <p className="text-muted-foreground">
+                    </motion.h1>
+                    <motion.p
+                        className="text-muted-foreground"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.35 }}>
                         Sign in to your account
-                    </p>
-                </div>
+                    </motion.p>
+                </motion.div>
 
                 {/* Login Form */}
-                <div className="space-y-6">
-                    <form
-                        onSubmit={handleSubmit}
-                        className="space-y-4 sm:space-y-6">
-                        {/* Email Field */}
-                        <div className="space-y-2">
-                            <Label
-                                htmlFor="email"
-                                className="text-foreground">
-                                Email
-                            </Label>
-                            <div className="relative">
-                                <EnvelopeIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
-                                <Input
-                                    id="email"
-                                    name="email"
-                                    type="email"
-                                    placeholder="Enter your email"
-                                    value={formData.email}
-                                    onChange={handleInputChange}
-                                    className={`pl-10 ${
-                                        errors.email
-                                            ? "border-destructive focus-visible:ring-destructive/50"
-                                            : ""
-                                    }`}
-                                    disabled={isLoading}
-                                />
-                            </div>
-                            {errors.email && (
-                                <p className="text-sm text-destructive">
-                                    {errors.email}
-                                </p>
-                            )}
+                <motion.form
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.4 }}
+                    onSubmit={handleSubmit}
+                    className="space-y-6">
+                    {/* Email Field */}
+                    <div className="space-y-2">
+                        <Label
+                            htmlFor="email"
+                            className="text-foreground">
+                            Email
+                        </Label>
+                        <div className="relative">
+                            <EnvelopeIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
+                            <Input
+                                id="email"
+                                name="email"
+                                type="email"
+                                placeholder="Enter your email"
+                                value={formData.email}
+                                onChange={handleInputChange}
+                                className={`pl-10 ${
+                                    errors.email
+                                        ? "border-destructive focus-visible:ring-destructive/50"
+                                        : ""
+                                }`}
+                                disabled={isLoading}
+                            />
                         </div>
+                        {errors.email && (
+                            <p className="text-sm text-destructive">
+                                {errors.email}
+                            </p>
+                        )}
+                    </div>
 
-                        {/* Password Field */}
-                        <div className="space-y-2">
-                            <Label
-                                htmlFor="password"
-                                className="text-foreground">
-                                Password
-                            </Label>
-                            <div className="relative">
-                                <LockIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
-                                <Input
-                                    id="password"
-                                    name="password"
-                                    type={showPassword ? "text" : "password"}
-                                    placeholder="Enter your password"
-                                    value={formData.password}
-                                    onChange={handleInputChange}
-                                    className={`pl-10 pr-10 ${
-                                        errors.password
-                                            ? "border-destructive focus-visible:ring-destructive/50"
-                                            : ""
-                                    }`}
-                                    disabled={isLoading}
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() =>
-                                        setShowPassword(!showPassword)
-                                    }
-                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                                    disabled={isLoading}>
-                                    {showPassword ? (
-                                        <EyeSlashIcon className="w-5 h-5" />
-                                    ) : (
-                                        <EyeIcon className="w-5 h-5" />
-                                    )}
-                                </button>
-                            </div>
-                            {errors.password && (
-                                <p className="text-sm text-destructive">
-                                    {errors.password}
-                                </p>
-                            )}
-                        </div>
-
-                        {/* Remember Me & Forgot Password */}
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
-                            <div className="flex items-center space-x-2">
-                                <Checkbox
-                                    id="remember"
-                                    checked={rememberMe}
-                                    onCheckedChange={setRememberMe}
-                                    disabled={isLoading}
-                                />
-                                <Label
-                                    htmlFor="remember"
-                                    className="text-sm text-muted-foreground">
-                                    Remember me
-                                </Label>
-                            </div>
+                    {/* Password Field */}
+                    <div className="space-y-2">
+                        <Label
+                            htmlFor="password"
+                            className="text-foreground">
+                            Password
+                        </Label>
+                        <div className="relative">
+                            <LockIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
+                            <Input
+                                id="password"
+                                name="password"
+                                type={showPassword ? "text" : "password"}
+                                placeholder="Enter your password"
+                                value={formData.password}
+                                onChange={handleInputChange}
+                                className={`pl-10 pr-10 ${
+                                    errors.password
+                                        ? "border-destructive focus-visible:ring-destructive/50"
+                                        : ""
+                                }`}
+                                disabled={isLoading}
+                            />
                             <button
                                 type="button"
-                                className="text-sm text-primary hover:text-primary/80 transition-colors">
-                                Forgot password?
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                                disabled={isLoading}>
+                                {showPassword ? (
+                                    <EyeSlashIcon className="w-5 h-5" />
+                                ) : (
+                                    <EyeIcon className="w-5 h-5" />
+                                )}
                             </button>
                         </div>
-
-                        {/* Submit Button */}
-                        <Button
-                            type="submit"
-                            className="w-full h-11 font-medium"
-                            disabled={isLoading}>
-                            {isLoading ? (
-                                <div className="flex items-center space-x-2">
-                                    <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin"></div>
-                                    <span>Signing in...</span>
-                                </div>
-                            ) : (
-                                "Sign In"
-                            )}
-                        </Button>
-                    </form>
-
-                    {/* Social Login Buttons */}
-                    <div>
-                        <Button
-                            variant="outline"
-                            className="w-full shadow-none !p-6"
-                            disabled={isLoading}>
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 488 512">
-                                <path d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z" />
-                            </svg>{" "}
-                            Sign In With Google
-                        </Button>
+                        {errors.password && (
+                            <p className="text-sm text-destructive">
+                                {errors.password}
+                            </p>
+                        )}
                     </div>
 
-                    {/* Sign Up Link */}
-                    <div className="text-center mt-6">
-                        <p className="text-sm text-muted-foreground">
-                            Don't have an account?{" "}
-                            <Link
-                                to="/signup"
-                                className="text-primary hover:text-primary/80 font-medium transition-colors">
-                                Sign up
-                            </Link>
-                        </p>
+                    {/* Remember Me & Forgot Password */}
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+                        <div className="flex items-center space-x-2">
+                            <Checkbox
+                                id="remember"
+                                checked={rememberMe}
+                                onCheckedChange={setRememberMe}
+                                disabled={isLoading}
+                            />
+                            <Label
+                                htmlFor="remember"
+                                className="text-sm text-muted-foreground">
+                                Remember me
+                            </Label>
+                        </div>
+                        <button
+                            type="button"
+                            className="text-sm text-primary hover:text-primary/80 transition-colors">
+                            Forgot password?
+                        </button>
                     </div>
+
+                    {/* Submit Button */}
+                    <Button
+                        type="submit"
+                        className="w-full !p-6 rounded-full font-medium"
+                        disabled={isLoading}>
+                        {isLoading ? (
+                            <div className="flex items-center space-x-2">
+                                <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin"></div>
+                                <span>Signing in...</span>
+                            </div>
+                        ) : (
+                            "Sign In"
+                        )}
+                    </Button>
+                </motion.form>
+
+                {/* Social Login Buttons */}
+                <div>
+                    <Button
+                        variant="outline"
+                        className="w-full shadow-none mt-4 !p-6 rounded-full"
+                        disabled={isLoading}>
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 488 512">
+                            <path d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z" />
+                        </svg>{" "}
+                        Sign In With Google
+                    </Button>
                 </div>
-            </div>
-        </div>
+
+                {/* Sign Up Link */}
+                <div className="text-center mt-6">
+                    <p className="text-sm text-muted-foreground">
+                        Don't have an account?{" "}
+                        <Link
+                            to="/signup"
+                            className="text-primary hover:text-primary/80 font-medium transition-colors">
+                            Sign up
+                        </Link>
+                    </p>
+                </div>
+            </motion.div>
+        </motion.div>
     );
 }
