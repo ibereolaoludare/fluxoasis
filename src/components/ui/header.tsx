@@ -154,17 +154,32 @@ export default function Header({ variant = "default" }: HeaderProps) {
 
     // Navigation items for the menu
     const navItems = [
-        { name: "Home", href: "home" },
-        { name: "Shop", href: "shop" },
-        { name: "About", href: "about" },
-        { name: "Contact", href: "contact" },
+        { name: "Home", href: "/home" },
+        { name: "Shop", href: "/shop" },
+        { name: "About", href: "/about" },
+        { name: "Contact", href: "/contact" },
     ];
 
     // Account sections for account variant
     const accountSections = [
-        { id: "basic", name: "Profile", icon: UserIcon },
-        { id: "address", name: "Address Book", icon: MapPinIcon },
-        { id: "orders", name: "Order History", icon: PackageIcon },
+        {
+            id: "basic",
+            name: "Profile",
+            icon: UserIcon,
+            path: "/account?section=basic",
+        },
+        {
+            id: "address",
+            name: "Address Book",
+            icon: MapPinIcon,
+            path: "/account?section=address",
+        },
+        {
+            id: "orders",
+            name: "Order History",
+            icon: PackageIcon,
+            path: "/account?section=orders",
+        },
     ];
 
     const userDropdownItems = [
@@ -199,10 +214,30 @@ export default function Header({ variant = "default" }: HeaderProps) {
 
     // Admin sections for admin variant
     const adminSections = [
-        { id: "dashboard", name: "Dashboard", icon: ChartLineIcon },
-        { id: "products", name: "Products", icon: PackageIcon },
-        { id: "orders", name: "Orders", icon: StorefrontIcon },
-        { id: "customers", name: "Customers", icon: UsersIcon },
+        {
+            id: "dashboard",
+            name: "Dashboard",
+            icon: ChartLineIcon,
+            path: "/admin?section=dashboard",
+        },
+        {
+            id: "products",
+            name: "Products",
+            icon: PackageIcon,
+            path: "/admin?section=products",
+        },
+        {
+            id: "orders",
+            name: "Orders",
+            icon: StorefrontIcon,
+            path: "/admin?section=orders",
+        },
+        {
+            id: "customers",
+            name: "Customers",
+            icon: UsersIcon,
+            path: "/admin?section=customers",
+        },
     ];
 
     // Account variant header
@@ -470,7 +505,7 @@ export default function Header({ variant = "default" }: HeaderProps) {
                                                     delay: 0.1 + index * 0.1,
                                                 }}>
                                                 <Link
-                                                    to={`/admin?section=${section.id}`}
+                                                    to={section.path}
                                                     className={cn(
                                                         "text-xs font-medium flex items-center transition-colors duration-200 p-2 px-3 rounded-full",
                                                         (searchParams.get(
@@ -556,7 +591,7 @@ export default function Header({ variant = "default" }: HeaderProps) {
                                                     setIsMenuOpen(false)
                                                 }>
                                                 <Link
-                                                    to={`/admin?section=${section.id}`}
+                                                    to={section.path}
                                                     className={cn(
                                                         "w-full flex items-center space-x-4 p-6 text-destructive text-sm hover:bg-destructive/10 font-bold rounded-full transition-colors duration-200",
                                                         (searchParams.get(

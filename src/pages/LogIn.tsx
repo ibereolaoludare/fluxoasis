@@ -257,7 +257,7 @@ export default function LogIn() {
                         <p className="text-sm text-muted-foreground">
                             Don't have an account?{" "}
                             <Link
-                                to="signup"
+                                to="/signup"
                                 className="text-primary hover:text-primary/80 font-medium transition-colors">
                                 Sign up
                             </Link>

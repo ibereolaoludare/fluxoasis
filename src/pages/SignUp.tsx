@@ -66,9 +66,7 @@ export default function SignUp() {
         }
         if (!formData.phone) {
             newErrors.phone = "Phone number is required";
-        } else if (
-            !/^\d{11}$/.test(formData.phone.replace(/\s/g, ""))
-        ) {
+        } else if (!/^\d{11}$/.test(formData.phone.replace(/\s/g, ""))) {
             newErrors.phone = "Please enter a valid phone number";
         }
         setErrors(newErrors);
