@@ -1,20 +1,31 @@
 import { useState, useEffect } from "react";
-import { motion } from "motion/react";
-import { AnimatePresence } from "framer-motion";
-import Header from "@/components/ui/header";
-import { useLocation } from "wouter";
-import { Button } from "@/components/ui/button";
+import { motion, AnimatePresence } from "motion/react";
 import {
     ArrowLeftIcon,
-    ShoppingCartIcon,
     PlusIcon,
     MinusIcon,
     TrashIcon,
+    ShoppingCartIcon,
     PackageIcon,
 } from "@phosphor-icons/react";
-import { cn, formatPrice } from "@/lib/utils";
-import { toast } from "sonner";
+import { useLocation } from "wouter";
+import Header from "@/components/ui/header";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { supabase } from "@/supabase";
+import { toast } from "sonner";
+import { cn, formatPrice, payWithPayStack } from "@/lib/utils";
+import type { PaymentResult } from "@/lib/utils";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogFooter,
+    DialogClose,
+} from "@/components/ui/dialog";
 
 // Cart item interface matching localStorage structure
 interface CartItem {
@@ -36,6 +47,13 @@ export default function Cart() {
     const [cartItems, setCartItems] = useState<CartItemWithDetails[]>([]);
     const [loading, setLoading] = useState(true);
     const [checkoutLoading, setCheckoutLoading] = useState(false);
+    const [showCheckoutDialog, setShowCheckoutDialog] = useState(false);
+    const [checkoutForm, setCheckoutForm] = useState({
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+    });
 
     // Load cart items from localStorage and fetch product details
     useEffect(() => {
@@ -158,7 +176,71 @@ export default function Cart() {
                 return;
             }
 
-            // Prepare order data
+            // Get user profile data for payment
+            const { data: profile } = await supabase.auth.getUser();
+            const userEmail = profile.user?.email || "";
+            const userName = profile.user?.user_metadata?.name || "";
+            const userPhone = profile.user?.user_metadata?.phone || "";
+
+            // Check if we have all required user data
+            if (!userEmail || !userName || !userPhone) {
+                // Show checkout dialog to collect missing information
+                setCheckoutForm({
+                    firstName: userName.split(" ")[0] || "",
+                    lastName: userName.split(" ").slice(1).join(" ") || "",
+                    email: userEmail || "",
+                    phone: userPhone || "",
+                });
+                setShowCheckoutDialog(true);
+                setCheckoutLoading(false);
+                return;
+            }
+
+            // All data available, proceed with payment
+            await processPayment(userEmail, userName, userPhone);
+        } catch (err) {
+            toast.error("An unexpected error occurred.");
+            console.error("Checkout error:", err);
+            setCheckoutLoading(false);
+        }
+    };
+
+    const processPayment = async (
+        email: string,
+        name: string,
+        phone: string
+    ) => {
+        try {
+            // Split name into first and last name
+            const nameParts = name.split(" ");
+            const firstName = nameParts[0] || "";
+            const lastName = nameParts.slice(1).join(" ") || "";
+
+            // Process payment through Paystack
+            const paymentResult = await payWithPayStack(
+                total,
+                {
+                    email: email,
+                    firstName: firstName,
+                    lastName: lastName,
+                    tel: phone,
+                },
+                (reference) => {
+                    console.log("Payment successful:", reference);
+                },
+                (error) => {
+                    console.error("Payment failed:", error);
+                    toast.error(`Payment failed: ${error}`);
+                }
+            );
+
+            if (!paymentResult.success) {
+                toast.error(`Payment failed: ${paymentResult.error}`);
+                setCheckoutLoading(false);
+                return;
+            }
+
+            // Payment successful, create order
             const orderData = {
                 items: cartItems.map(
                     ({ id, name, price, quantity, image, category }) => ({
@@ -172,34 +254,76 @@ export default function Cart() {
                 ),
                 total,
                 created_at: new Date().toISOString(),
+                payment_reference: paymentResult.reference,
             };
+
+            // Get current user
+            const {
+                data: { user },
+            } = await supabase.auth.getUser();
 
             // Insert into orders table
             const { error: insertError } = await supabase
                 .from("orders")
                 .insert([
                     {
-                        user_id: user.id,
+                        user_id: user!.id,
                         order: orderData,
-                        order_state: "pending",
+                        order_state: "processing", // Changed from "pending" to "processing" since payment is successful
                     },
                 ]);
 
             if (insertError) {
                 toast.error("Failed to place order. Please try again.");
-                console.error("Error: ", insertError.message)
+                console.error("Error: ", insertError.message);
                 setCheckoutLoading(false);
                 return;
             }
 
-            toast.success("Order placed successfully!");
+            toast.success("Order placed successfully! Payment completed.");
             setCartItems([]);
             localStorage.removeItem("cart-items");
+            setShowCheckoutDialog(false);
         } catch (err) {
             toast.error("An unexpected error occurred.");
+            console.error("Payment error:", err);
         } finally {
             setCheckoutLoading(false);
         }
+    };
+
+    const handleCheckoutFormSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        // Validate form
+        if (
+            !checkoutForm.firstName ||
+            !checkoutForm.lastName ||
+            !checkoutForm.email ||
+            !checkoutForm.phone
+        ) {
+            toast.error("Please fill in all required fields.");
+            return;
+        }
+
+        // Update user profile with the provided information
+        const { error: updateError } = await supabase.auth.updateUser({
+            data: {
+                name: `${checkoutForm.firstName} ${checkoutForm.lastName}`,
+                phone: checkoutForm.phone,
+            },
+        });
+
+        if (updateError) {
+            console.error("Error updating profile:", updateError);
+        }
+
+        // Process payment with the form data
+        await processPayment(
+            checkoutForm.email,
+            `${checkoutForm.firstName} ${checkoutForm.lastName}`,
+            checkoutForm.phone
+        );
     };
 
     const subtotal = cartItems.reduce(
@@ -519,6 +643,123 @@ export default function Cart() {
                     </motion.div>
                 </div>
             </div>
+
+            <Dialog
+                open={showCheckoutDialog}
+                onOpenChange={setShowCheckoutDialog}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Complete Your Order</DialogTitle>
+                        <DialogDescription>
+                            Please provide your details to complete the payment.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={handleCheckoutFormSubmit}>
+                        <div className="grid gap-4 py-4">
+                            <div className="grid grid-cols-4 items-center gap-4">
+                                <Label
+                                    htmlFor="firstName"
+                                    className="text-right">
+                                    First Name
+                                </Label>
+                                <Input
+                                    id="firstName"
+                                    value={checkoutForm.firstName}
+                                    onChange={(e) =>
+                                        setCheckoutForm({
+                                            ...checkoutForm,
+                                            firstName: e.target.value,
+                                        })
+                                    }
+                                    className="col-span-3"
+                                    required
+                                />
+                            </div>
+                            <div className="grid grid-cols-4 items-center gap-4">
+                                <Label
+                                    htmlFor="lastName"
+                                    className="text-right">
+                                    Last Name
+                                </Label>
+                                <Input
+                                    id="lastName"
+                                    value={checkoutForm.lastName}
+                                    onChange={(e) =>
+                                        setCheckoutForm({
+                                            ...checkoutForm,
+                                            lastName: e.target.value,
+                                        })
+                                    }
+                                    className="col-span-3"
+                                    required
+                                />
+                            </div>
+                            <div className="grid grid-cols-4 items-center gap-4">
+                                <Label
+                                    htmlFor="email"
+                                    className="text-right">
+                                    Email
+                                </Label>
+                                <Input
+                                    id="email"
+                                    type="email"
+                                    value={checkoutForm.email}
+                                    onChange={(e) =>
+                                        setCheckoutForm({
+                                            ...checkoutForm,
+                                            email: e.target.value,
+                                        })
+                                    }
+                                    className="col-span-3"
+                                    required
+                                />
+                            </div>
+                            <div className="grid grid-cols-4 items-center gap-4">
+                                <Label
+                                    htmlFor="phone"
+                                    className="text-right">
+                                    Phone
+                                </Label>
+                                <Input
+                                    id="phone"
+                                    value={checkoutForm.phone}
+                                    onChange={(e) =>
+                                        setCheckoutForm({
+                                            ...checkoutForm,
+                                            phone: e.target.value,
+                                        })
+                                    }
+                                    className="col-span-3"
+                                    required
+                                />
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            <DialogClose asChild>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    className="rounded-full">
+                                    Cancel
+                                </Button>
+                            </DialogClose>
+                            <Button
+                                type="submit"
+                                disabled={checkoutLoading}
+                                className="rounded-full">
+                                {checkoutLoading ? (
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-4 h-4 border-2 border-background border-t-transparent rounded-full animate-spin" />
+                                        Processing Payment...
+                                    </div>
+                                ) : (
+                                    "Proceed to Payment"
+                                )}
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }
