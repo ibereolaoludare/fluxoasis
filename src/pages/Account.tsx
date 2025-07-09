@@ -32,13 +32,13 @@ import {
     DialogDescription,
 } from "@/components/ui/dialog";
 import { Link } from "wouter";
-import {
-    Select,
-    SelectTrigger,
-    SelectValue,
-    SelectContent,
-    SelectItem,
-} from "@/components/ui/select";
+// import {
+//     Select,
+//     SelectTrigger,
+//     SelectValue,
+//     SelectContent,
+//     SelectItem,
+// } from "@/components/ui/select";
 
 // Add Address type
 interface Address {
@@ -65,7 +65,7 @@ function ProfileSection() {
         name: "",
         phone: "",
     });
-    const [role, setRole] = useState<string>("user");
+    // const [role, setRole] = useState<string>("user");
 
     // Fetch user data on component mount
     useEffect(() => {
@@ -99,7 +99,7 @@ function ProfileSection() {
                             "User",
                         phone: userMetadata.phone || "",
                     });
-                    setRole(userMetadata.role || "user");
+                    // setRole(userMetadata.role || "user");
                 }
             } catch {
                 toast.error("Error: Failed to fetch user data.");
@@ -151,29 +151,29 @@ function ProfileSection() {
         setIsEditing(false);
     };
 
-    const handleRoleChange = async (newRole: string) => {
-        setIsLoading(true);
-        try {
-            const result = await supabase.auth.updateUser({
-                data: {
-                    ...formData,
-                    role: newRole,
-                },
-            });
-            if (result.error) {
-                toast.error(
-                    "Error updating role: " + result.error.message + "."
-                );
-            } else {
-                setRole(newRole);
-                toast.success(`Role updated to ${newRole}.`);
-            }
-        } catch {
-            toast.error("Error updating role.");
-        } finally {
-            setIsLoading(false);
-        }
-    };
+    // const handleRoleChange = async (newRole: string) => {
+    //     setIsLoading(true);
+    //     try {
+    //         const result = await supabase.auth.updateUser({
+    //             data: {
+    //                 ...formData,
+    //                 role: newRole,
+    //             },
+    //         });
+    //         if (result.error) {
+    //             toast.error(
+    //                 "Error updating role: " + result.error.message + "."
+    //             );
+    //         } else {
+    //             setRole(newRole);
+    //             toast.success(`Role updated to ${newRole}.`);
+    //         }
+    //     } catch {
+    //         toast.error("Error updating role.");
+    //     } finally {
+    //         setIsLoading(false);
+    //     }
+    // };
 
     return (
         <motion.div
@@ -201,7 +201,7 @@ function ProfileSection() {
                         )}
                         {isEditing ? "Cancel" : "Edit Profile"}
                     </Button>
-                    <Select
+                    {/* <Select
                         value={role}
                         onValueChange={handleRoleChange}>
                         <SelectTrigger className="rounded-full text-xs px-4 py-2 w-36">
@@ -212,7 +212,7 @@ function ProfileSection() {
                             <SelectItem value="admin">Admin</SelectItem>
                             <SelectItem value="developer">Developer</SelectItem>
                         </SelectContent>
-                    </Select>
+                    </Select> */}
                 </div>
             </div>
 
