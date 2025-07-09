@@ -430,18 +430,18 @@ export default function SignUp() {
                                     {errors.agree}
                                 </p>
                             )}
-                            <div className="flex gap-2">
+                            <div className="flex sm:flex-row gap-4 flex-col">
                                 <Button
                                     type="button"
                                     variant="outline"
-                                    className="w-full !p-6 rounded-full"
+                                    className="w-full sm:w-1/2 !p-6 rounded-full shadow-none"
                                     onClick={handleBack}
                                     disabled={isLoading}>
                                     Back
                                 </Button>
                                 <Button
                                     type="submit"
-                                    className="w-full !p-6 rounded-full"
+                                    className="w-full sm:w-1/2 !p-6 rounded-full"
                                     disabled={isLoading}>
                                     {isLoading ? "Signing up..." : "Sign Up"}
                                 </Button>
