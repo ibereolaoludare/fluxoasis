@@ -20,7 +20,6 @@ import { supabase } from "@/supabase";
 interface CartItem {
     id: number;
     quantity: number;
-    unit: string;
 }
 
 // Extended cart item with product details
@@ -121,7 +120,6 @@ export default function Cart() {
         const cartData = updatedItems.map((item) => ({
             id: item.id,
             quantity: item.quantity,
-            unit: item.unit,
         }));
         localStorage.setItem("cart-items", JSON.stringify(cartData));
     };
@@ -134,7 +132,6 @@ export default function Cart() {
         const cartData = updatedItems.map((item) => ({
             id: item.id,
             quantity: item.quantity,
-            unit: item.unit,
         }));
         localStorage.setItem("cart-items", JSON.stringify(cartData));
 
@@ -306,12 +303,6 @@ export default function Cart() {
                                                                     {item.inStock
                                                                         ? "In Stock"
                                                                         : "Out of Stock"}
-                                                                </span>
-                                                                <span className="text-xs uppercase tracking-wider font-medium text-muted-foreground px-2 py-1 rounded-full bg-muted">
-                                                                    {item.unit ===
-                                                                    "single"
-                                                                        ? "Single Unit"
-                                                                        : "Bulk Unit"}
                                                                 </span>
                                                             </div>
                                                             <h3 className="font-semibold text-foreground mb-1">

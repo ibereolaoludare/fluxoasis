@@ -28,7 +28,6 @@ export default function ItemPage() {
     const id = Number(location.split("/item/")[1]?.split("/")[0]);
 
     const [item, setItem] = useState<Tables<"products"> | null>(null);
-    const [selectedUnit, setselectedUnit] = useState<string>("");
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [quantity, setQuantity] = useState(1);
@@ -60,7 +59,7 @@ export default function ItemPage() {
     }, [id]);
 
     const addToCart = () => {
-        if (!item || !selectedUnit) return;
+        if (!item) return;
 
         // Get existing cart items from localStorage
         const existingCartItems = JSON.parse(
@@ -71,7 +70,6 @@ export default function ItemPage() {
         const newCartItem = {
             id: item.id,
             quantity: quantity,
-            unit: selectedUnit,
         };
 
         // Add to cart array
@@ -182,105 +180,62 @@ export default function ItemPage() {
                                                     ₦ {item.price.toFixed(2)}
                                                 </span>
                                             </div>
-                                            {/* Selection summary */}
-                                            <div className="flex-col sm:flex-row gap-8 pt-4 flex">
-                                                <div className="flex flex-col gap-4">
-                                                    <h5 className="font-medium text-xs uppercase">
-                                                        Unit
-                                                    </h5>
-                                                    <div>
-                                                        <Select
-                                                            value={selectedUnit}
-                                                            onValueChange={
-                                                                setselectedUnit
-                                                            }>
-                                                            <SelectTrigger
-                                                                className="w-36 rounded-full bg-muted shadow-none !p-6 !px-4 text-foreground border-none focus:ring-2 focus:ring-primary text-xs"
-                                                                aria-label="Select unit">
-                                                                <SelectValue placeholder="Select unit" />
-                                                            </SelectTrigger>
-                                                            <SelectContent className="border-0 rounded-3xl p-2">
-                                                                <SelectItem
-                                                                    value="single"
-                                                                    className="rounded-full hover:!bg-foreground hover:!text-background px-4">
-                                                                    Singular
-                                                                    Unit
-                                                                </SelectItem>
-                                                                <SelectItem
-                                                                    value="bulk"
-                                                                    className="rounded-full hover:!bg-foreground hover:!text-background px-4">
-                                                                    Bulk Unit
-                                                                </SelectItem>
-                                                            </SelectContent>
-                                                        </Select>
-                                                        {/* Helper text for size selection */}
-                                                        {!selectedUnit && (
-                                                            <div className="text-xs text-destructive mt-1">
-                                                                Please select a
-                                                                size
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                                {/* Quantity Section */}
-                                                <div className="flex flex-col gap-4">
-                                                    <h5 className="font-medium text-xs uppercase">
-                                                        Quantity
-                                                    </h5>
-                                                    <div className="flex w-min items-center gap-4 rounded-full p-1.5 bg-muted text-xs">
-                                                        <Button
-                                                            variant="ghost"
-                                                            className="hover:bg-foreground hover:text-background cursor-pointer rounded-full w-8 h-8 text-xs focus:ring-2 focus:ring-primary"
-                                                            onClick={() =>
-                                                                setQuantity(
-                                                                    (q) =>
-                                                                        Math.max(
-                                                                            1,
-                                                                            q -
-                                                                                1
-                                                                        )
+                                            {/* Quantity Section */}
+                                            <div className="flex flex-col gap-4">
+                                                <h5 className="font-medium text-xs uppercase">
+                                                    Quantity
+                                                </h5>
+                                                <div className="flex w-min items-center gap-4 rounded-full p-1.5 bg-muted text-xs">
+                                                    <Button
+                                                        variant="ghost"
+                                                        className="hover:bg-foreground hover:text-background cursor-pointer rounded-full w-8 h-8 text-xs focus:ring-2 focus:ring-primary"
+                                                        onClick={() =>
+                                                            setQuantity((q) =>
+                                                                Math.max(
+                                                                    1,
+                                                                    q - 1
                                                                 )
-                                                            }
-                                                            aria-label="Decrease quantity"
-                                                            disabled={
-                                                                quantity <= 1 ||
-                                                                !item.inStock
-                                                            }>
-                                                            <MinusIcon weight="bold" />
-                                                        </Button>
-                                                        <motion.span
-                                                            className="font-semibold min-w-[2ch] text-center"
-                                                            key={quantity}
-                                                            initial={{
-                                                                scale: 0.8,
-                                                                opacity: 0,
-                                                            }}
-                                                            animate={{
-                                                                scale: 1,
-                                                                opacity: 1,
-                                                            }}
-                                                            transition={{
-                                                                type: "spring",
-                                                                stiffness: 300,
-                                                                damping: 20,
-                                                            }}>
-                                                            {quantity}
-                                                        </motion.span>
-                                                        <Button
-                                                            variant="ghost"
-                                                            className="hover:bg-foreground hover:text-background cursor-pointer rounded-full text-sm w-8 h-8 focus:ring-2 focus:ring-primary"
-                                                            onClick={() =>
-                                                                setQuantity(
-                                                                    (q) => q + 1
-                                                                )
-                                                            }
-                                                            aria-label="Increase quantity"
-                                                            disabled={
-                                                                !item.inStock
-                                                            }>
-                                                            <PlusIcon weight="bold" />
-                                                        </Button>
-                                                    </div>
+                                                            )
+                                                        }
+                                                        aria-label="Decrease quantity"
+                                                        disabled={
+                                                            quantity <= 1 ||
+                                                            !item.inStock
+                                                        }>
+                                                        <MinusIcon weight="bold" />
+                                                    </Button>
+                                                    <motion.span
+                                                        className="font-semibold min-w-[2ch] text-center"
+                                                        key={quantity}
+                                                        initial={{
+                                                            scale: 0.8,
+                                                            opacity: 0,
+                                                        }}
+                                                        animate={{
+                                                            scale: 1,
+                                                            opacity: 1,
+                                                        }}
+                                                        transition={{
+                                                            type: "spring",
+                                                            stiffness: 300,
+                                                            damping: 20,
+                                                        }}>
+                                                        {quantity}
+                                                    </motion.span>
+                                                    <Button
+                                                        variant="ghost"
+                                                        className="hover:bg-foreground hover:text-background cursor-pointer rounded-full text-sm w-8 h-8 focus:ring-2 focus:ring-primary"
+                                                        onClick={() =>
+                                                            setQuantity(
+                                                                (q) => q + 1
+                                                            )
+                                                        }
+                                                        aria-label="Increase quantity"
+                                                        disabled={
+                                                            !item.inStock
+                                                        }>
+                                                        <PlusIcon weight="bold" />
+                                                    </Button>
                                                 </div>
                                             </div>
                                             <motion.div
@@ -289,12 +244,8 @@ export default function ItemPage() {
                                                 <Button
                                                     ref={addBtnRef}
                                                     className="!p-6.5 rounded-full bg-foreground hover:bg-foreground/90 text-background text-sm w-full md:w-auto transition-all disabled:opacity-60 disabled:cursor-not-allowed focus:ring-2 focus:ring-primary"
-                                                    disabled={
-                                                        !selectedUnit ||
-                                                        !item.inStock
-                                                    }
+                                                    disabled={!item.inStock}
                                                     aria-disabled={
-                                                        !selectedUnit ||
                                                         !item.inStock
                                                     }
                                                     aria-label="Add to Cart"

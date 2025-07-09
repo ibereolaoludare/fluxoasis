@@ -38,7 +38,6 @@ import { cn } from "@/lib/utils";
 interface CartItem {
     id: number;
     quantity: number;
-    unit: string;
 }
 
 // Custom hook for user session
