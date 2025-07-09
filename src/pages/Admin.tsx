@@ -465,7 +465,7 @@ function ProductsSection() {
             name: form.name,
             price: parseFloat(form.price),
             category: form.category,
-            inStock: form.inStock,
+            inStock: Boolean(form.inStock),
             ratings: 0,
             reviews: null,
         };
@@ -526,7 +526,7 @@ function ProductsSection() {
             name: product.name,
             price: product.price.toString(),
             category: product.category,
-            inStock: product.inStock,
+            inStock: Boolean(product.inStock),
             image: "",
         });
         setOpen(true);
@@ -890,7 +890,6 @@ function ProductsSection() {
                                             inStock: Boolean(checked),
                                         }))
                                     }
-                                    required
                                 />
                                 <Label htmlFor="inStock">In Stock</Label>
                             </div>

@@ -13,13 +13,6 @@ import {
     MinusIcon,
 } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
 import { toast } from "sonner";
 
 export default function ItemPage() {
