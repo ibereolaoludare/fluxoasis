@@ -11,7 +11,6 @@ import {
     EyeIcon,
     UserIcon,
     PhoneIcon,
-    ArrowLeftIcon,
 } from "@phosphor-icons/react";
 import { CheckedState } from "@radix-ui/react-checkbox";
 import { Link } from "wouter";
@@ -196,15 +195,16 @@ export default function SignUp() {
                 </motion.div>
 
                 {/* Two Step Sign Up Form */}
-                <motion.form
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.45 }}
-                    onSubmit={handleSubmit}
+                <form
+                    onSubmit={step === 1 ? handleNext : handleSubmit}
                     className="space-y-4">
                     {step === 1 && (
-                        <motion.form
-                            onSubmit={handleNext}
+                        <motion.div
+                            key="step1"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                            transition={{ duration: 0.5 }}
                             className="space-y-4 sm:space-y-6">
                             {/* Name Field */}
                             <div className="space-y-2">
@@ -302,11 +302,15 @@ export default function SignUp() {
                                 disabled={isLoading}>
                                 Next
                             </Button>
-                        </motion.form>
+                        </motion.div>
                     )}
                     {step === 2 && (
-                        <motion.form
-                            onSubmit={handleSubmit}
+                        <motion.div
+                            key="step2"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                            transition={{ duration: 0.5 }}
                             className="space-y-4 sm:space-y-6">
                             {/* Password Field */}
                             <div className="space-y-2">
@@ -403,7 +407,7 @@ export default function SignUp() {
                                 )}
                             </div>
                             {/* Agree to Terms */}
-                            <div className="flex items-center space-x-2">
+                            <div className="flex items-center gap-2">
                                 <Checkbox
                                     id="agree"
                                     checked={!!agree}
@@ -412,12 +416,12 @@ export default function SignUp() {
                                 />
                                 <Label
                                     htmlFor="agree"
-                                    className="text-sm text-muted-foreground">
+                                    className="text-xs text-muted-foreground">
                                     I agree to the{" "}
                                     <a
                                         href="#"
-                                        className="underline text-primary">
-                                        terms and conditions
+                                        className="underline">
+                                        terms & conditions
                                     </a>
                                 </Label>
                             </div>
@@ -430,27 +434,19 @@ export default function SignUp() {
                                 <Button
                                     type="button"
                                     variant="outline"
-                                    className="w-1/2 !p-6 rounded-full font-medium shadow-none hover:bg-foreground hover:text-background"
+                                    className="w-full !p-6 rounded-full"
                                     onClick={handleBack}
                                     disabled={isLoading}>
-                                    <ArrowLeftIcon />
                                     Back
                                 </Button>
                                 <Button
                                     type="submit"
-                                    className="w-1/2 !p-6 rounded-full font-medium"
+                                    className="w-full !p-6 rounded-full"
                                     disabled={isLoading}>
-                                    {isLoading ? (
-                                        <div className="flex items-center space-x-2">
-                                            <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin"></div>
-                                            <span>Signing up...</span>
-                                        </div>
-                                    ) : (
-                                        "Sign Up"
-                                    )}
+                                    {isLoading ? "Signing up..." : "Sign Up"}
                                 </Button>
                             </div>
-                        </motion.form>
+                        </motion.div>
                     )}
                     {/* Social Sign Up Button */}
                     <div>
@@ -477,7 +473,7 @@ export default function SignUp() {
                             </Link>
                         </p>
                     </div>
-                </motion.form>
+                </form>
             </motion.div>
         </motion.div>
     );
