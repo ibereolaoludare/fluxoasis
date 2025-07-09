@@ -16,7 +16,6 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/supabase";
 import { toast } from "sonner";
 import { cn, formatPrice, payWithPayStack } from "@/lib/utils";
-import type { PaymentResult } from "@/lib/utils";
 import {
     Dialog,
     DialogContent,
