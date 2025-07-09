@@ -15,6 +15,16 @@ import {
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
+// Helper function to format price with proper punctuation
+const formatPrice = (price: number): string => {
+    return new Intl.NumberFormat("en-NG", {
+        style: "currency",
+        currency: "NGN",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    }).format(price);
+};
+
 export default function ItemPage() {
     // Get the id from the URL
     const [location, setLocation] = useLocation();
@@ -170,7 +180,7 @@ export default function ItemPage() {
                                             </h2>
                                             <div className="flex items-center gap-2 mb-2">
                                                 <span className="text-base font-semibold">
-                                                    ₦ {item.price.toFixed(2)}
+                                                    {formatPrice(item.price)}
                                                 </span>
                                             </div>
                                             {/* Quantity Section */}

@@ -73,6 +73,14 @@ import {
 import type { Tables, TablesInsert } from "@/supabase.type";
 import { toast } from "sonner";
 
+// Add formatPrice helper function at the top of the file
+function formatPrice(price: number) {
+    return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "NGN",
+    }).format(price);
+}
+
 ChartJS.register(
     CategoryScale,
     LinearScale,
@@ -575,7 +583,7 @@ function ProductsSection() {
             {
                 accessorKey: "price",
                 header: "Price",
-                cell: (info) => `₦${Number(info.getValue()).toFixed(2)}`,
+                cell: (info) => formatPrice(Number(info.getValue())),
             },
             {
                 accessorKey: "inStock",

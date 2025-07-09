@@ -10,6 +10,16 @@ interface ProductCardProps {
     image?: string;
 }
 
+// Helper function to format price with proper punctuation
+const formatPrice = (price: number): string => {
+    return new Intl.NumberFormat("en-NG", {
+        style: "currency",
+        currency: "NGN",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    }).format(price);
+};
+
 export default function ProductCard({
     id,
     name,
@@ -47,7 +57,7 @@ export default function ProductCard({
                     </h3>
                 </div>
                 <div className="flex flex-col gap-4 justify-between">
-                    <span>₦{price.toFixed(2)}</span>
+                    <span>{formatPrice(price)}</span>
                     <Link
                         to={"/item/" + id}
                         asChild>

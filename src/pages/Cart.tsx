@@ -16,6 +16,16 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { supabase } from "@/supabase";
 
+// Helper function to format price with proper punctuation
+const formatPrice = (price: number): string => {
+    return new Intl.NumberFormat("en-NG", {
+        style: "currency",
+        currency: "NGN",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    }).format(price);
+};
+
 // Cart item interface matching localStorage structure
 interface CartItem {
     id: number;
@@ -309,9 +319,8 @@ export default function Cart() {
                                                                 {item.name}
                                                             </h3>
                                                             <p className="text-lg font-bold text-foreground">
-                                                                ₦{" "}
-                                                                {item.price.toFixed(
-                                                                    2
+                                                                {formatPrice(
+                                                                    item.price
                                                                 )}
                                                             </p>
                                                         </div>
@@ -417,7 +426,7 @@ export default function Cart() {
                                                         items)
                                                     </span>
                                                     <span className="font-semibold">
-                                                        ₦ {subtotal.toFixed(2)}
+                                                        {formatPrice(subtotal)}
                                                     </span>
                                                 </div>
                                                 <div className="flex justify-between text-sm">
@@ -425,14 +434,14 @@ export default function Cart() {
                                                         Shipping
                                                     </span>
                                                     <span className="font-semibold">
-                                                        ₦ {shipping.toFixed(2)}
+                                                        {formatPrice(shipping)}
                                                     </span>
                                                 </div>
                                                 <div className="border-t border-border/50 pt-3">
                                                     <div className="flex justify-between text-lg font-bold">
                                                         <span>Total</span>
                                                         <span>
-                                                            ₦ {total.toFixed(2)}
+                                                            {formatPrice(total)}
                                                         </span>
                                                     </div>
                                                 </div>
