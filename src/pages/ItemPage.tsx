@@ -105,14 +105,9 @@ export default function ItemPage() {
                     keywords={`${item.name}, ${item.category}, beverages, drinks, fluxoasis, Nigeria, Lagos`}
                     url={`/item/${item.id}`}
                     type="product"
-                    image={
-                        item.image ||
-                        `${
-                            import.meta.env.VITE_SUPABASE_URL
-                        }/storage/v1/object/public/products/images/${
-                            item.id
-                        }.jpg`
-                    }
+                    image={`${
+                        import.meta.env.VITE_SUPABASE_URL
+                    }/storage/v1/object/public/products/images/${item.id}.jpg`}
                 />
             )}
             <Header />
