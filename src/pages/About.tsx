@@ -13,6 +13,7 @@ import {
 } from "@phosphor-icons/react";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
+import SEO from "@/components/SEO";
 import { Link } from "wouter";
 
 export default function About() {
@@ -99,6 +100,13 @@ export default function About() {
 
     return (
         <>
+            <SEO
+                title="About Us | Fluxoasis - Our Story & Mission"
+                description="Learn about Fluxoasis, our mission to deliver premium beverages in minutes, and meet our team dedicated to revolutionizing drink delivery."
+                keywords="about fluxoasis, our story, drink delivery, beverage company, Nigeria, Lagos, customer service"
+                url="/about"
+                type="website"
+            />
             <Header />
             <main className="min-h-screen bg-background">
                 {/* Hero Section */}

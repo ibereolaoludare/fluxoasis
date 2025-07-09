@@ -14,6 +14,7 @@ import {
 } from "@phosphor-icons/react";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
+import SEO from "@/components/SEO";
 
 export default function Contact() {
     const [formData, setFormData] = useState({
@@ -90,6 +91,13 @@ export default function Contact() {
 
     return (
         <>
+            <SEO
+                title="Contact Us | Fluxoasis - Get in Touch"
+                description="Get in touch with Fluxoasis. We're here to help with any questions about our premium beverages and delivery service. Contact us today!"
+                keywords="contact fluxoasis, customer support, help, customer service, Nigeria, Lagos, beverage delivery"
+                url="/contact"
+                type="website"
+            />
             <Header />
             <main className="min-h-screen bg-background">
                 {/* Hero Section */}

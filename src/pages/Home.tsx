@@ -1,5 +1,6 @@
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
+import SEO from "@/components/SEO";
 import { motion } from "motion/react";
 import {
     ArrowRightIcon,
@@ -145,6 +146,13 @@ export default function Home() {
 
     return (
         <>
+            <SEO
+                title="Fluxoasis - Premium Beverages & Drinks | Home"
+                description="Discover premium beverages and drinks at Fluxoasis. Shop our curated collection of soft drinks, energy drinks, juices, and more. Fast delivery and excellent customer service."
+                keywords="beverages, drinks, soft drinks, energy drinks, juices, water, premium drinks, online drinks store, Nigeria, Lagos"
+                url="/"
+                type="website"
+            />
             <Header />
             <main className="flex flex-col justify-between w-full">
                 {/* Hero Section */}

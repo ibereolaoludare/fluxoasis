@@ -1,0 +1,31 @@
+{
+    "name": "Fluxoasis - Premium Beverages & Drinks",
+    "short_name": "Fluxoasis",
+    "description": "Discover premium beverages and drinks at Fluxoasis. Shop our curated collection of soft drinks, energy drinks, juices, and more.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#000000",
+    "orientation": "portrait-primary",
+    "icons": [
+        {
+            "src": "/logo.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/logo-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/logo-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ],
+    "categories": ["food", "shopping", "lifestyle"],
+    "lang": "en",
+    "dir": "ltr"
+}

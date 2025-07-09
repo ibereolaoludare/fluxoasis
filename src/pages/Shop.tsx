@@ -18,6 +18,7 @@ import {
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
 import ProductCard from "@/components/ui/product-card";
+import SEO from "@/components/SEO";
 import { supabase } from "@/supabase";
 import type { Tables } from "@/supabase.type";
 
@@ -79,6 +80,13 @@ export default function Shop() {
 
     return (
         <>
+            <SEO
+                title="Shop All Drinks | Fluxoasis - Premium Beverages"
+                description="Browse our complete collection of premium beverages including soft drinks, energy drinks, juices, and water. Fast delivery and excellent customer service."
+                keywords="shop drinks, buy beverages, soft drinks, energy drinks, juices, water, online drinks store, Nigeria"
+                url="/shop"
+                type="website"
+            />
             <Header />
             <main className="min-h-screen bg-background">
                 {/* Hero Section */}

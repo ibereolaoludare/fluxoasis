@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { motion } from "motion/react";
 import { AnimatePresence } from "framer-motion";
 import Header from "@/components/ui/header";
+import SEO from "@/components/SEO";
 import { supabase } from "@/supabase";
 import type { Tables } from "@/supabase.type";
 import { useLocation } from "wouter";
@@ -93,6 +94,27 @@ export default function ItemPage() {
 
     return (
         <div className="min-h-screen bg-background">
+            {item && (
+                <SEO
+                    title={`${item.name} | Fluxoasis - Premium Beverages`}
+                    description={`Buy ${item.name} from Fluxoasis. ${
+                        item.category
+                    } beverage at ${formatPrice(
+                        item.price
+                    )}. Fast delivery and excellent customer service.`}
+                    keywords={`${item.name}, ${item.category}, beverages, drinks, fluxoasis, Nigeria, Lagos`}
+                    url={`/item/${item.id}`}
+                    type="product"
+                    image={
+                        item.image ||
+                        `${
+                            import.meta.env.VITE_SUPABASE_URL
+                        }/storage/v1/object/public/products/images/${
+                            item.id
+                        }.jpg`
+                    }
+                />
+            )}
             <Header />
             <div className="sm:px-4 px-0">
                 <div className="px-4 sm:px-8 xl:px-32">
