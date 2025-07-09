@@ -161,7 +161,7 @@ export default function Cart() {
     );
     // Remove the pickupFee variable and its usage
     const total = subtotal;
-    const itemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+    const itemCount = cartItems.length;
 
     if (loading) {
         return (
