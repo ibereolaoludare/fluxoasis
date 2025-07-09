@@ -329,8 +329,22 @@ export default function Cart() {
         (sum, item) => sum + item.price * item.quantity,
         0
     );
-    // Remove the pickupFee variable and its usage
-    const total = subtotal;
+
+    // Calculate Paystack charges
+    const calculatePaystackCharges = (amount: number) => {
+        if (amount < 2500) {
+            // For transactions under ₦2,500, only 1.5% fee (₦100 is waived)
+            return Math.min(amount * 0.015, 2000);
+        } else {
+            // For transactions ₦2,500 and above: 1.5% + ₦100, capped at ₦2,000
+            const percentageFee = amount * 0.015;
+            const flatFee = 100;
+            return Math.min(percentageFee + flatFee, 2000);
+        }
+    };
+
+    const paystackCharges = calculatePaystackCharges(subtotal);
+    const total = subtotal + paystackCharges;
     const itemCount = cartItems.length;
 
     if (loading) {
@@ -589,7 +603,16 @@ export default function Cart() {
                                                         {formatPrice(subtotal)}
                                                     </span>
                                                 </div>
-                                                {/* Remove the Pick Up Fee row from the order summary UI */}
+                                                <div className="flex justify-between text-sm">
+                                                    <span className="text-muted-foreground">
+                                                        Payment Charges
+                                                    </span>
+                                                    <span className="font-semibold">
+                                                        {formatPrice(
+                                                            paystackCharges
+                                                        )}
+                                                    </span>
+                                                </div>
                                                 <div className="border-t border-border/50 pt-3">
                                                     <div className="flex justify-between text-lg font-bold">
                                                         <span>Total</span>
