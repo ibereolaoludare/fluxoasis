@@ -187,6 +187,7 @@ export default function Cart() {
 
             if (insertError) {
                 toast.error("Failed to place order. Please try again.");
+                console.error("Error: ", insertError.message)
                 setCheckoutLoading(false);
                 return;
             }

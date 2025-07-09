@@ -12,7 +12,6 @@ import {
     MapPinIcon,
     ChartLineIcon,
     StorefrontIcon,
-    UsersIcon,
 } from "@phosphor-icons/react";
 import {
     NavigationMenu,
@@ -230,12 +229,6 @@ export default function Header({ variant = "default" }: HeaderProps) {
             name: "Orders",
             icon: StorefrontIcon,
             path: "/admin?section=orders",
-        },
-        {
-            id: "customers",
-            name: "Customers",
-            icon: UsersIcon,
-            path: "/admin?section=customers",
         },
     ];
 

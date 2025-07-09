@@ -5,13 +5,11 @@ import {
     PackageIcon,
     StorefrontIcon,
     UsersIcon,
-    GearIcon,
-    CoffeeIcon,
     PlusIcon,
     XIcon,
     CheckIcon,
 } from "@phosphor-icons/react";
-import { useSearchParams } from "wouter";
+import { Link, useSearchParams } from "wouter";
 import Header from "@/components/ui/header";
 import { supabase, supabaseAdmin } from "@/supabase";
 import { navigate } from "wouter/use-browser-location";
@@ -85,108 +83,194 @@ ChartJS.register(
 
 // Placeholder admin section components
 function DashboardSection() {
-    // Add state for selected range
     const [range, setRange] = useState<"daily" | "monthly" | "yearly" | "all">(
         "daily"
     );
+    const [orders, setOrders] = useState<any[]>([]);
+    const [products, setProducts] = useState<any[]>([]);
+    const [, setLoading] = useState(true);
+    const [users, setUsers] = useState<Record<string, any>>({});
+    const [, setUserError] = useState<string | null>(null);
 
-    // Mock metrics for each range
-    const metricsData = {
-        daily: [
-            { label: "Total Sales", value: "$1,234", icon: ChartLineIcon },
-            { label: "Orders", value: "123", icon: PackageIcon },
-            { label: "Customers", value: "56", icon: UsersIcon },
-            { label: "Products", value: "89", icon: StorefrontIcon },
-        ],
-        monthly: [
-            { label: "Total Sales", value: "$34,567", icon: ChartLineIcon },
-            { label: "Orders", value: "2,345", icon: PackageIcon },
-            { label: "Customers", value: "789", icon: UsersIcon },
-            { label: "Products", value: "89", icon: StorefrontIcon },
-        ],
-        yearly: [
-            { label: "Total Sales", value: "$456,789", icon: ChartLineIcon },
-            { label: "Orders", value: "28,900", icon: PackageIcon },
-            { label: "Customers", value: "6,543", icon: UsersIcon },
-            { label: "Products", value: "89", icon: StorefrontIcon },
-        ],
-        all: [
-            { label: "Total Sales", value: "$1,234,567", icon: ChartLineIcon },
-            { label: "Orders", value: "123,456", icon: PackageIcon },
-            { label: "Customers", value: "56,789", icon: UsersIcon },
-            { label: "Products", value: "89", icon: StorefrontIcon },
+    useEffect(() => {
+        (async () => {
+            setLoading(true);
+            setUserError(null);
+            const { data: ordersData } = await supabase
+                .from("orders")
+                .select("*");
+            const { data: productsData } = await supabase
+                .from("products")
+                .select("*");
+            setOrders(ordersData || []);
+            setProducts(productsData || []);
+            setLoading(false);
+
+            // Fetch user info for recent orders
+            if (ordersData && ordersData.length > 0) {
+                // Get the latest 5 orders by created_at
+                const sorted = ordersData
+                    .slice()
+                    .sort(
+                        (a, b) =>
+                            new Date(b.created_at).getTime() -
+                            new Date(a.created_at).getTime()
+                    );
+                const recent = sorted.slice(0, 5);
+                const userIds = Array.from(
+                    new Set(recent.map((o) => o.user_id))
+                );
+                let usersMap: Record<string, any> = {};
+                for (const userId of userIds) {
+                    try {
+                        const { data, error } =
+                            await supabaseAdmin.auth.admin.getUserById(userId);
+                        if (data?.user) {
+                            usersMap[userId] = {
+                                name:
+                                    data.user.user_metadata?.name ||
+                                    data.user.email?.split("@")[0] ||
+                                    "User",
+                                email: data.user.email,
+                                phone: data.user.user_metadata?.phone || "",
+                            };
+                        } else {
+                            usersMap[userId] = {
+                                name: "Unknown",
+                                email: "",
+                                phone: "",
+                            };
+                            if (error) setUserError(`Error: ${error.message}`);
+                        }
+                    } catch (err: any) {
+                        usersMap[userId] = {
+                            name: "Unknown",
+                            email: "",
+                            phone: "",
+                        };
+                        setUserError(
+                            `Error fetching user info: ${err.message}`
+                        );
+                    }
+                }
+                setUsers(usersMap);
+            }
+        })();
+    }, []);
+
+    // Helper: get start of today/month/year
+    const getStart = (type: "daily" | "monthly" | "yearly") => {
+        const now = new Date();
+        if (type === "daily")
+            return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        if (type === "monthly")
+            return new Date(now.getFullYear(), now.getMonth(), 1);
+        if (type === "yearly") return new Date(now.getFullYear(), 0, 1);
+        return new Date(0);
+    };
+    // Filter orders by range
+    const filteredOrders = orders.filter((order) => {
+        if (range === "all") return true;
+        const start = getStart(range);
+        return new Date(order.created_at) >= start;
+    });
+    // Metrics
+    const totalSales = filteredOrders.reduce(
+        (sum, o) => sum + (o.order?.total || 0),
+        0
+    );
+    const orderCount = filteredOrders.length;
+    const customerCount = new Set(filteredOrders.map((o) => o.user_id)).size;
+    const productCount = products.length;
+    // Metrics cards
+    const metrics = [
+        {
+            label: "Total Sales",
+            value: formatPrice(totalSales),
+            icon: ChartLineIcon,
+        },
+        {
+            label: "Orders",
+            value: orderCount.toLocaleString(),
+            icon: PackageIcon,
+        },
+        {
+            label: "Customers",
+            value: customerCount.toLocaleString(),
+            icon: UsersIcon,
+        },
+        {
+            label: "Products",
+            value: productCount.toLocaleString(),
+            icon: StorefrontIcon,
+        },
+    ];
+    // Sales chart data
+    let salesLabels: string[] = [];
+    let salesDataArr: number[] = [];
+    if (range === "daily") {
+        // 6 time buckets for today
+        salesLabels = ["12am", "4am", "8am", "12pm", "4pm", "8pm"];
+        salesDataArr = Array(6).fill(0);
+        filteredOrders.forEach((o) => {
+            const hour = new Date(o.created_at).getHours();
+            const idx = Math.floor(hour / 4);
+            salesDataArr[idx] += o.order?.total || 0;
+        });
+    } else if (range === "monthly") {
+        // 4 weeks
+        salesLabels = ["Week 1", "Week 2", "Week 3", "Week 4"];
+        salesDataArr = Array(4).fill(0);
+        filteredOrders.forEach((o) => {
+            const day = new Date(o.created_at).getDate();
+            const idx = Math.min(Math.floor((day - 1) / 7), 3);
+            salesDataArr[idx] += o.order?.total || 0;
+        });
+    } else if (range === "yearly") {
+        // 12 months
+        salesLabels = [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec",
+        ];
+        salesDataArr = Array(12).fill(0);
+        filteredOrders.forEach((o) => {
+            const month = new Date(o.created_at).getMonth();
+            salesDataArr[month] += o.order?.total || 0;
+        });
+    } else {
+        // all: by year
+        const years = Array.from(
+            new Set(orders.map((o) => new Date(o.created_at).getFullYear()))
+        ).sort();
+        salesLabels = years.map((y) => y.toString());
+        salesDataArr = years.map((y) =>
+            orders
+                .filter((o) => new Date(o.created_at).getFullYear() === y)
+                .reduce((sum, o) => sum + (o.order?.total || 0), 0)
+        );
+    }
+    const salesData = {
+        labels: salesLabels,
+        datasets: [
+            {
+                label: "Sales",
+                data: salesDataArr,
+                backgroundColor: "#222",
+                borderRadius: 8,
+                maxBarThickness: 32,
+            },
         ],
     };
-    const metrics = metricsData[range];
-
-    // Mock sales data for chart for each range
-    const salesDataMap = {
-        daily: {
-            labels: ["12am", "4am", "8am", "12pm", "4pm", "8pm"],
-            datasets: [
-                {
-                    label: "Sales",
-                    data: [120, 300, 200, 400, 150, 64],
-                    backgroundColor: "#222",
-                    borderRadius: 8,
-                    maxBarThickness: 32,
-                },
-            ],
-        },
-        monthly: {
-            labels: ["Week 1", "Week 2", "Week 3", "Week 4"],
-            datasets: [
-                {
-                    label: "Sales",
-                    data: [5000, 9000, 7000, 13567],
-                    backgroundColor: "#222",
-                    borderRadius: 8,
-                    maxBarThickness: 32,
-                },
-            ],
-        },
-        yearly: {
-            labels: [
-                "Jan",
-                "Feb",
-                "Mar",
-                "Apr",
-                "May",
-                "Jun",
-                "Jul",
-                "Aug",
-                "Sep",
-                "Oct",
-                "Nov",
-                "Dec",
-            ],
-            datasets: [
-                {
-                    label: "Sales",
-                    data: [
-                        34000, 29000, 41000, 38000, 45000, 39000, 42000, 41000,
-                        37000, 43000, 40000, 44000,
-                    ],
-                    backgroundColor: "#222",
-                    borderRadius: 8,
-                    maxBarThickness: 32,
-                },
-            ],
-        },
-        all: {
-            labels: ["2019", "2020", "2021", "2022", "2023", "2024"],
-            datasets: [
-                {
-                    label: "Sales",
-                    data: [120000, 180000, 250000, 300000, 400000, 234567],
-                    backgroundColor: "#222",
-                    borderRadius: 8,
-                    maxBarThickness: 32,
-                },
-            ],
-        },
-    };
-    const salesData = salesDataMap[range];
     const salesOptions = {
         responsive: true,
         maintainAspectRatio: false,
@@ -199,38 +283,22 @@ function DashboardSection() {
             y: { grid: { color: "#f3f4f6" }, beginAtZero: true },
         },
     };
-
-    // Mock recent orders
-    const recentOrders = [
-        {
-            id: "ORD-1001",
-            customer: "Alice Smith",
-            total: "$120.00",
-            status: "Delivered",
-            date: "2024-06-01",
-        },
-        {
-            id: "ORD-1002",
-            customer: "Bob Lee",
-            total: "$89.50",
-            status: "Pending",
-            date: "2024-06-02",
-        },
-        {
-            id: "ORD-1003",
-            customer: "Charlie Kim",
-            total: "$45.00",
-            status: "Cancelled",
-            date: "2024-06-02",
-        },
-        {
-            id: "ORD-1004",
-            customer: "Dana Fox",
-            total: "$210.00",
-            status: "Delivered",
-            date: "2024-06-03",
-        },
-    ];
+    // Recent orders (latest 5)
+    const recentOrders = filteredOrders
+        .slice()
+        .sort(
+            (a, b) =>
+                new Date(b.created_at).getTime() -
+                new Date(a.created_at).getTime()
+        )
+        .slice(0, 5)
+        .map((order) => ({
+            id: `ORD-${String(order.id).padStart(3, "0")}`,
+            customer: users[order.user_id]?.name || order.user_id,
+            total: formatPrice(order.order?.total),
+            status: order.order_state,
+            date: new Date(order.created_at).toLocaleDateString("en-GB"),
+        }));
 
     return (
         <motion.div
@@ -239,8 +307,8 @@ function DashboardSection() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}>
             {/* Range Selector */}
-            <div className="flex gap-2 mb-2">
-                {["daily", "monthly", "yearly", "all"].map((r) => (
+            <div className="flex gap-2 mb-4">
+                {(["daily", "monthly", "yearly", "all"] as const).map((r) => (
                     <button
                         key={r}
                         className={`px-3 py-1 rounded-full border text-sm font-medium transition-colors ${
@@ -248,7 +316,7 @@ function DashboardSection() {
                                 ? "bg-foreground text-background"
                                 : "bg-background text-foreground border-border hover:bg-muted"
                         }`}
-                        onClick={() => setRange(r as typeof range)}
+                        onClick={() => setRange(r)}
                         type="button">
                         {r === "daily"
                             ? "Daily"
@@ -261,12 +329,12 @@ function DashboardSection() {
                 ))}
             </div>
             {/* Metrics Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {metrics.map((m) => (
                     <div
                         key={m.label}
                         className="rounded-2xl p-5 flex items-center gap-4 bg-background text-foreground border border-border">
-                        <m.icon className="w-7 h-7" />
+                        <m.icon className="w-7 h-7 flex-shrink-0" />
                         <div>
                             <div className="text-lg font-bold leading-tight">
                                 {m.value}
@@ -278,16 +346,10 @@ function DashboardSection() {
                     </div>
                 ))}
             </div>
-
             {/* Sales Chart */}
             <div className="bg-background rounded-2xl p-6 border border-border">
                 <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-bold text-foreground">
-                        Sales This Week
-                    </h3>
-                    <span className="text-xs text-muted-foreground">
-                        (Mock Data)
-                    </span>
+                    <h3 className="text-lg font-bold text-foreground">Sales</h3>
                 </div>
                 <div className="h-64 w-full">
                     <Bar
@@ -296,16 +358,12 @@ function DashboardSection() {
                     />
                 </div>
             </div>
-
             {/* Recent Orders Table */}
             <div className="bg-background rounded-2xl p-6 border border-border">
                 <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-bold text-foreground">
                         Recent Orders
                     </h3>
-                    <span className="text-xs text-muted-foreground">
-                        (Mock Data)
-                    </span>
                 </div>
                 <Table>
                     <TableHeader>
@@ -330,19 +388,21 @@ function DashboardSection() {
                                 <TableCell className="text-foreground">
                                     {order.total}
                                 </TableCell>
-                                <TableCell className="text-foreground font-semibold">
+                                <TableCell className="text-foreground font-semibold capitalize">
                                     {order.status}
                                 </TableCell>
                                 <TableCell className="text-foreground">
                                     {order.date}
                                 </TableCell>
                                 <TableCell>
-                                    <Button
-                                        size="sm"
-                                        variant="outline"
-                                        className="shadow-none hover:bg-foreground hover:text-background rounded-full">
-                                        View
-                                    </Button>
+                                    <Link to="/admin?section=orders">
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="shadow-none hover:bg-foreground hover:text-background rounded-full">
+                                            View
+                                        </Button>
+                                    </Link>
                                 </TableCell>
                             </TableRow>
                         ))}
@@ -1126,10 +1186,7 @@ function OrdersSection() {
                                 <div className="flex flex-col items-end gap-2 w-full sm:min-w-[180px]">
                                     <span className="text-lg font-bold text-foreground">
                                         {order.order?.total
-                                            ? Intl.NumberFormat("en-US", {
-                                                  style: "currency",
-                                                  currency: "USD",
-                                              }).format(order.order.total)
+                                            ? formatPrice(order.order?.total)
                                             : "-"}
                                     </span>
                                     <Select
@@ -1286,49 +1343,6 @@ function OrdersSection() {
         </motion.div>
     );
 }
-function CustomersSection() {
-    return (
-        <motion.div
-            className="w-full rounded-2xl p-8"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}>
-            <h2 className="text-xl font-bold mb-2">Customers</h2>
-            <p className="text-muted-foreground text-sm">
-                Customer management area.
-            </p>
-        </motion.div>
-    );
-}
-function SettingsSection() {
-    return (
-        <motion.div
-            className="w-full rounded-2xl p-8"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}>
-            <h2 className="text-xl font-bold mb-2">Settings</h2>
-            <p className="text-muted-foreground text-sm">
-                Admin settings and preferences.
-            </p>
-        </motion.div>
-    );
-}
-function AdminActionsSection() {
-    return (
-        <motion.div
-            className="w-full rounded-2xl p-8"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.5 }}>
-            <h2 className="text-xl font-bold mb-2">Admin Actions</h2>
-            <p className="text-muted-foreground text-sm">
-                Danger zone and admin tools.
-            </p>
-        </motion.div>
-    );
-}
-
 export default function Admin() {
     const [checking, setChecking] = useState(true);
     const [isAdmin, setIsAdmin] = useState(false);
@@ -1368,24 +1382,6 @@ export default function Admin() {
             name: "Orders",
             icon: StorefrontIcon,
             component: OrdersSection,
-        },
-        {
-            id: "customers",
-            name: "Customers",
-            icon: UsersIcon,
-            component: CustomersSection,
-        },
-        {
-            id: "settings",
-            name: "Settings",
-            icon: GearIcon,
-            component: SettingsSection,
-        },
-        {
-            id: "actions",
-            name: "Admin Actions",
-            icon: CoffeeIcon,
-            component: AdminActionsSection,
         },
     ];
 
