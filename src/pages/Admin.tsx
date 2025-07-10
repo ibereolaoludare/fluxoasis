@@ -1090,7 +1090,7 @@ function OrdersSection() {
             for (const userId of userIds) {
                 try {
                     const response = await fetch(
-                        `https://hqvjnfgipdziwcwunhmh.supabase.co/functions/v1/get-user-by-id?id=${userId}`,
+                        `/functions/v1/get-user-by-id?id=${userId}`,
                         {
                             headers: {
                                 Authorization: `Bearer ${access_token}`,
