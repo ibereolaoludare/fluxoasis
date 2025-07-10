@@ -320,16 +320,14 @@ const UserDropdown = memo(function UserDropdown({
             <div className="flex items-center gap-2">
                 <Link to="/login">
                     <Button
-                        variant="ghost"
-                        size="sm"
-                        className="rounded-full">
+                        variant="outline"
+                        className="rounded-full shadow-none !p-6 hover:bg-foreground hover:text-background">
                         Sign In
                     </Button>
                 </Link>
                 <Link to="/signup">
                     <Button
-                        size="sm"
-                        className="rounded-full">
+                        className="rounded-full !p-6 bg-foreground text-background hover:bg-foreground/90">
                         Sign Up
                     </Button>
                 </Link>
