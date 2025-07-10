@@ -31,7 +31,6 @@ import {
     DialogClose,
     DialogDescription,
 } from "@/components/ui/dialog";
-import { Link } from "wouter";
 import { formatPrice } from "@/lib/utils";
 // import {
 //     Select,
@@ -1085,13 +1084,6 @@ export default function Account() {
                 <div className="px-4 sm:px-8 xl:px-32">
                     {/* Main Content Area */}
                     <ActiveComponent />
-                    <div className="flex justify-end mt-8">
-                        <Link
-                            to="/admin"
-                            className="text-xs text-muted-foreground opacity-40 hover:opacity-70 transition-opacity underline">
-                            Admin?
-                        </Link>
-                    </div>
                 </div>
             </div>
         </div>

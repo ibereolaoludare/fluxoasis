@@ -10,6 +10,7 @@ import {
 } from "@phosphor-icons/react";
 import { useLocation } from "wouter";
 import Header from "@/components/ui/header";
+import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -351,6 +352,12 @@ export default function Cart() {
         return (
             <div className="min-h-screen bg-background">
                 <Header />
+                <SEO
+                    title="Shopping Cart - FluxOasis"
+                    description="Review your items and complete your purchase in our secure shopping cart. Fast checkout with Paystack payment processing."
+                    keywords="shopping cart, checkout, online shopping, beverages, drinks, payment, order summary, FluxOasis"
+                    url="/cart"
+                />
                 <div className="sm:px-4 px-0">
                     <div className="px-4 sm:px-8 xl:px-32">
                         <motion.div
@@ -382,6 +389,12 @@ export default function Cart() {
 
     return (
         <div className="min-h-screen bg-background">
+            <SEO
+                title="Shopping Cart | FluxOasis - Premium Beverages"
+                description="Review your items and complete your purchase in our secure shopping cart. Fast checkout with Paystack payment processing."
+                keywords="shopping cart, checkout, online shopping, beverages, drinks, payment, order summary, FluxOasis"
+                url="/cart"
+            />
             <Header />
             <div className="sm:px-4 px-0">
                 <div className="px-4 sm:px-8 xl:px-32">

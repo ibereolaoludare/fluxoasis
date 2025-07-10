@@ -11,6 +11,7 @@ import {
     MapPinIcon,
     ChartLineIcon,
     StorefrontIcon,
+    ShieldCheckIcon,
 } from "@phosphor-icons/react";
 import {
     NavigationMenu,
@@ -37,6 +38,14 @@ interface CartItem {
     quantity: number;
 }
 
+// Navigation item interface
+interface NavigationItem {
+    name: string;
+    href: string;
+    icon?: any;
+    className?: string;
+}
+
 // Custom hook for user session
 function useUserSession() {
     const [isUser, setIsUser] = useState<boolean | null | undefined>(null);
@@ -51,6 +60,31 @@ function useUserSession() {
         };
     }, []);
     return isUser;
+}
+
+// Custom hook for admin status
+function useAdminStatus() {
+    const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+    useEffect(() => {
+        let mounted = true;
+        (async () => {
+            try {
+                const { data, error } = await supabase.auth.getUser();
+                if (mounted && !error && data?.user) {
+                    const role = data.user.user_metadata?.role;
+                    setIsAdmin(role === "admin" || role === "developer");
+                } else {
+                    setIsAdmin(false);
+                }
+            } catch {
+                if (mounted) setIsAdmin(false);
+            }
+        })();
+        return () => {
+            mounted = false;
+        };
+    }, []);
+    return isAdmin;
 }
 
 // Custom hook for cart data
@@ -127,9 +161,9 @@ interface HeaderProps {
     variant?: "default" | "account" | "admin";
 }
 
-// Memoized navigation items
-const useNavigationItems = () => {
-    return useMemo(
+// Memoized navigation items with stable reference
+const useStableNavigationItems = (isAdmin: boolean | null) => {
+    const baseItems: NavigationItem[] = useMemo(
         () => [
             { name: "Home", href: "/home" },
             { name: "Shop", href: "/shop" },
@@ -138,6 +172,24 @@ const useNavigationItems = () => {
         ],
         []
     );
+
+    const adminItem: NavigationItem = useMemo(
+        () => ({
+            name: "Admin",
+            href: "/admin",
+            icon: ShieldCheckIcon,
+            className:
+                "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+        }),
+        []
+    );
+
+    return useMemo((): NavigationItem[] => {
+        if (isAdmin) {
+            return [...baseItems, adminItem];
+        }
+        return baseItems;
+    }, [isAdmin, baseItems, adminItem]);
 };
 
 // Memoized account sections
@@ -219,11 +271,7 @@ const useUserDropdownItems = () => {
 };
 
 // Memoized Cart Icon Component
-const CartIcon = memo(function CartIcon({
-    itemCount,
-}: {
-    itemCount: number;
-}) {
+const CartIcon = memo(function CartIcon({ itemCount }: { itemCount: number }) {
     return (
         <Link to="/cart">
             <motion.div
@@ -292,12 +340,12 @@ const UserDropdown = memo(function UserDropdown({
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    className="rounded-full">
-                    <UserIcon className="w-5 h-5" />
-                </Button>
+                <motion.div
+                    className="relative p-2 rounded-full hover:bg-muted/50 transition-colors"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}>
+                    <UserIcon className="w-6 h-6 text-foreground" />
+                </motion.div>
             </DropdownMenuTrigger>
             <DropdownMenuContent
                 align="end"
@@ -423,12 +471,13 @@ const Header = memo(function Header({ variant = "default" }: HeaderProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [currentScroll, setCurrentScroll] = useState(0);
     const isUser = useUserSession();
+    const isAdmin = useAdminStatus();
     const { itemCount } = useCartData();
     const [searchParams] = useSearchParams();
     const [location, setLocation] = useLocation();
 
     // Memoized navigation items
-    const navItems = useNavigationItems();
+    const navItems = useStableNavigationItems(isAdmin);
     const accountSections = useAccountSections();
     const adminSections = useAdminSections();
     const userDropdownItems = useUserDropdownItems();
@@ -862,25 +911,35 @@ const Header = memo(function Header({ variant = "default" }: HeaderProps) {
                     {/* Desktop Navigation Menu */}
                     <NavigationMenu className="hidden xl:flex">
                         <NavigationMenuList className="space-x-8 bg-muted p-2 rounded-full">
-                            {navItems.map((item, index) => (
-                                <NavigationMenuItem
-                                    className="hover:bg-transparent"
-                                    key={item.name}>
-                                    <motion.div
-                                        initial={{ opacity: 0, y: -20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{
-                                            duration: 0.5,
-                                            delay: index * 0.1,
-                                        }}>
-                                        <Link
-                                            to={item.href}
-                                            className="text-xs font-medium flex items-center transition-colors duration-200 p-2 px-4 text-foreground rounded-full hover:bg-foreground hover:text-background">
-                                            <span>{item.name}</span>
-                                        </Link>
-                                    </motion.div>
-                                </NavigationMenuItem>
-                            ))}
+                            {navItems.map((item, index) => {
+                                const Icon = item.icon;
+                                return (
+                                    <NavigationMenuItem
+                                        className="hover:bg-transparent"
+                                        key={`nav-${item.name}`}>
+                                        <motion.div
+                                            initial={{ opacity: 0, y: -20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{
+                                                duration: 0.5,
+                                                delay: index * 0.1,
+                                            }}>
+                                            <Link
+                                                to={item.href}
+                                                className={cn(
+                                                    "text-xs font-medium flex items-center transition-colors duration-200 p-2 px-4 rounded-full",
+                                                    item.className ||
+                                                        "text-foreground hover:bg-foreground hover:text-background"
+                                                )}>
+                                                {Icon && (
+                                                    <Icon className="w-4 h-4 mr-2" />
+                                                )}
+                                                <span>{item.name}</span>
+                                            </Link>
+                                        </motion.div>
+                                    </NavigationMenuItem>
+                                );
+                            })}
                         </NavigationMenuList>
                     </NavigationMenu>
 
@@ -891,9 +950,7 @@ const Header = memo(function Header({ variant = "default" }: HeaderProps) {
                             initial={{ opacity: 0, scale: 0.8 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ duration: 0.5, delay: 0.3 }}>
-                            <CartIcon
-                                itemCount={itemCount}
-                            />
+                            <CartIcon itemCount={itemCount} />
                         </motion.div>
 
                         {/* User Dropdown or Auth Buttons */}
@@ -955,23 +1012,33 @@ const Header = memo(function Header({ variant = "default" }: HeaderProps) {
                             transition={{ duration: 0.3, ease: "easeInOut" }}>
                             <div className="py-4 space-y-2 border-t border-border">
                                 {/* Mobile Navigation Items */}
-                                {navItems.map((item, index) => (
-                                    <motion.div
-                                        key={item.name}
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        exit={{ opacity: 0, x: -20 }}
-                                        transition={{
-                                            duration: 0.3,
-                                            delay: index * 0.1,
-                                        }}>
-                                        <Link
-                                            to={item.href}
-                                            className="flex items-center space-x-4 p-6 text-foreground hover:bg-primary hover:text-background font-bold rounded-full transition-colors duration-200 text-sm">
-                                            <span>{item.name}</span>
-                                        </Link>
-                                    </motion.div>
-                                ))}
+                                {navItems.map((item, index) => {
+                                    const Icon = item.icon;
+                                    return (
+                                        <motion.div
+                                            key={`mobile-nav-${item.name}`}
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            exit={{ opacity: 0, x: -20 }}
+                                            transition={{
+                                                duration: 0.3,
+                                                delay: index * 0.1,
+                                            }}>
+                                            <Link
+                                                to={item.href}
+                                                className={cn(
+                                                    "flex items-center space-x-4 p-6 font-bold rounded-full transition-colors duration-200 text-sm",
+                                                    item.className ||
+                                                        "text-foreground hover:bg-primary hover:text-background"
+                                                )}>
+                                                {Icon && (
+                                                    <Icon className="w-5 h-5" />
+                                                )}
+                                                <span>{item.name}</span>
+                                            </Link>
+                                        </motion.div>
+                                    );
+                                })}
 
                                 {/* Mobile User Actions and Cart */}
                                 <div className="pt-4 border-t border-border">
