@@ -248,7 +248,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 -   **Live Demo**: [https://fluxoasis.vercel.app](https://fluxoasis.vercel.app)
 -   **Issues**: [GitHub Issues](https://github.com/ibereolaoludare/fluxoasis/issues)
--   **Email**: support@fluxoasis.com
+-   **Email**: ibereola2906@gmail.com
 
 ---
 
