@@ -88,7 +88,7 @@ FluxOasis is a modern, full-stack e-commerce platform specializing in premium be
 1. **Clone the repository**
 
     ```bash
-    git clone https://github.com/yourusername/fluxoasis.git
+    git clone https://github.com/ibereolaoludare/fluxoasis.git
     cd fluxoasis
     ```
 
@@ -247,7 +247,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📞 Support
 
 -   **Live Demo**: [https://fluxoasis.vercel.app](https://fluxoasis.vercel.app)
--   **Issues**: [GitHub Issues](https://github.com/yourusername/fluxoasis/issues)
+-   **Issues**: [GitHub Issues](https://github.com/ibereolaoludare/fluxoasis/issues)
 -   **Email**: support@fluxoasis.com
 
 ---
@@ -256,8 +256,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Made with ❤️ by the Ibereola Oludare**
 
-[![GitHub stars](https://img.shields.io/github/stars/yourusername/fluxoasis?style=social)](https://github.com/yourusername/fluxoasis)
-[![GitHub forks](https://img.shields.io/github/forks/yourusername/fluxoasis?style=social)](https://github.com/yourusername/fluxoasis)
-[![GitHub issues](https://img.shields.io/github/issues/yourusername/fluxoasis)](https://github.com/yourusername/fluxoasis/issues)
+[![GitHub stars](https://img.shields.io/github/stars/ibereolaoludare/fluxoasis?style=social)](https://github.com/ibereolaoludare/fluxoasis)
+[![GitHub forks](https://img.shields.io/github/forks/ibereolaoludare/fluxoasis?style=social)](https://github.com/ibereolaoludare/fluxoasis)
+[![GitHub issues](https://img.shields.io/github/issues/ibereolaoludare/fluxoasis)](https://github.com/ibereolaoludare/fluxoasis/issues)
 
 </div>
