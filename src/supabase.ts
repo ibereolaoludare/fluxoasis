@@ -7,6 +7,11 @@ const supabase = createClient(
     import.meta.env.VITE_SUPABASE_ANON_KEY
 );
 
+const supabaseAdmin = createClient(
+    import.meta.env.VITE_SUPABASE_URL,
+    import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY
+);
+
 async function checkUser(type: "validate" | "return", navigateAway?: boolean) {
     const { data, error } = await supabase.auth.getUser();
 
@@ -33,4 +38,4 @@ async function logOut() {
     }
 }
 
-export { supabase, checkUser, logOut };
+export { supabase, supabaseAdmin,checkUser, logOut };
