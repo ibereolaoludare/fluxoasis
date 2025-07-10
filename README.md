@@ -8,7 +8,7 @@
 
 FluxOasis is a modern, full-stack e-commerce platform specializing in premium beverages and drinks. Built with cutting-edge technologies, it offers a seamless shopping experience with secure payments, real-time inventory management, and an intuitive admin dashboard.
 
-![FluxOasis Preview](https://via.placeholder.com/800x400/1f2937/ffffff?text=FluxOasis+Preview)
+![FluxOasis Preview](https://fluxoasis.vercel.app/preview.png)
 
 ## ✨ Features
 
