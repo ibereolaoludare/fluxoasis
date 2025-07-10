@@ -46,7 +46,7 @@ export default function Contact() {
             title: "Address",
             value: "Abuja, Nigeria",
             description: "Visit our office",
-            href: "#",
+            href: "https://g.co/kgs/YkP91kv",
         },
         {
             icon: ClockIcon,
