@@ -30,16 +30,16 @@ export default function Contact() {
         {
             icon: PhoneIcon,
             title: "Phone",
-            value: "+234 901 234 5678",
+            value: "+234 803 917 0390",
             description: "Call us anytime",
-            href: "tel:+2349012345678",
+            href: "tel:+2348039170390",
         },
         {
             icon: EnvelopeIcon,
             title: "Email",
-            value: "hello@fluxoasis.com",
+            value: "debbietaiye@gmail.com",
             description: "Send us an email",
-            href: "mailto:hello@fluxoasis.com",
+            href: "mailto:debbietaiye@gmail.com",
         },
         {
             icon: MapPinIcon,
@@ -53,7 +53,7 @@ export default function Contact() {
             title: "Business Hours",
             value: "24/7 Available",
             description: "We're always here for you",
-            href: "#",
+            href: "https://g.co/kgs/YkP91kv",
         },
     ];
 
