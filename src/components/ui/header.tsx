@@ -326,8 +326,7 @@ const UserDropdown = memo(function UserDropdown({
                     </Button>
                 </Link>
                 <Link to="/signup">
-                    <Button
-                        className="rounded-full !p-6 bg-foreground text-background hover:bg-foreground/90">
+                    <Button className="rounded-full !p-6 bg-foreground text-background hover:bg-foreground/90">
                         Sign Up
                     </Button>
                 </Link>
@@ -719,7 +718,7 @@ const Header = memo(function Header({ variant = "default" }: HeaderProps) {
                 <div className="p-4 sm:p-6 lg:p-8">
                     <div className="flex justify-between items-center h-16">
                         {/* Logo Section */}
-                        <Link to="/account">
+                        <Link to="/home">
                             <motion.div
                                 className="flex items-center"
                                 whileHover={{ scale: 1.05 }}
@@ -846,7 +845,10 @@ const Header = memo(function Header({ variant = "default" }: HeaderProps) {
                                                 transition={{
                                                     duration: 0.3,
                                                     delay: 0.1 + index * 0.1,
-                                                }}>
+                                                }}
+                                                onClick={() =>
+                                                    setIsMenuOpen(false)
+                                                }>
                                                 <Link
                                                     to={section.path}
                                                     className={cn(
