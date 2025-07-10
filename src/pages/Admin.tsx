@@ -11,7 +11,7 @@ import {
 } from "@phosphor-icons/react";
 import { Link, useSearchParams } from "wouter";
 import Header from "@/components/ui/header";
-import { supabase, supabaseAdmin } from "@/supabase";
+import { supabase } from "@/supabase";
 import { navigate } from "wouter/use-browser-location";
 import { Bar } from "react-chartjs-2";
 import {
@@ -121,10 +121,21 @@ function DashboardSection() {
                     new Set(recent.map((o) => o.user_id))
                 );
                 let usersMap: Record<string, any> = {};
+                // Get access token
+                const { data: sessionData } =
+                    await supabase.auth.getSession();
+                const access_token = sessionData?.session?.access_token;
                 for (const userId of userIds) {
                     try {
-                        const { data, error } =
-                            await supabaseAdmin.auth.admin.getUserById(userId);
+                        const response = await fetch(
+                            `/functions/v1/get-user-by-id?id=${userId}`,
+                            {
+                                headers: {
+                                    Authorization: `Bearer ${access_token}`,
+                                },
+                            }
+                        );
+                        const { data, error } = await response.json();
                         if (data?.user) {
                             usersMap[userId] = {
                                 name:
@@ -1072,10 +1083,21 @@ function OrdersSection() {
             );
             // Fetch user info for each user_id
             let usersMap: Record<string, any> = {};
+            // Get access token
+            const { data: sessionData } =
+                await supabase.auth.getSession();
+            const access_token = sessionData?.session?.access_token;
             for (const userId of userIds) {
                 try {
-                    const { data, error } =
-                        await supabaseAdmin.auth.admin.getUserById(userId);
+                    const response = await fetch(
+                        `https://hqvjnfgipdziwcwunhmh.supabase.co/functions/v1/get-user-by-id?id=${userId}`,
+                        {
+                            headers: {
+                                Authorization: `Bearer ${access_token}`,
+                            },
+                        }
+                    );
+                    const { data, error } = await response.json();
                     if (data?.user) {
                         usersMap[userId] = {
                             name:
