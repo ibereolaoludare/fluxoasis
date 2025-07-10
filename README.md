@@ -105,7 +105,7 @@ FluxOasis is a modern, full-stack e-commerce platform specializing in premium be
     VITE_SUPABASE_URL=your_supabase_url
     VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
     VITE_SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
-    VITE_PAYSTACK_PUBLIC_KEY=your_paystack_public_key
+    VITE_PK_PAYSTACK_KEY=your_paystack_public_key
     ```
 
 4. **Start development server**
