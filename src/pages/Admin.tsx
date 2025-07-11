@@ -1096,11 +1096,11 @@ function OrdersSection() {
                     if (user) {
                         usersMap[userId] = {
                             name:
-                                user.user_metadata?.name ||
+                                user.name ||
                                 user.email?.split("@")[0] ||
                                 "User",
                             email: user.email,
-                            phone: user.user_metadata?.phone || "",
+                            phone: user.phone || "",
                         };
                     } else {
                         usersMap[userId] = {
@@ -1362,7 +1362,7 @@ export default function Admin() {
     useEffect(() => {
         (async () => {
             const { data, error } = await supabase.auth.getUser();
-            const role = data?.user?.user_metadata?.role;
+            const role = data?.user?.app_metadata?.role;
             if (error || !(role === "admin" || role === "developer")) {
                 navigate("/account");
             } else {

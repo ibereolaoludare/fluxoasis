@@ -71,7 +71,7 @@ function useAdminStatus() {
             try {
                 const { data, error } = await supabase.auth.getUser();
                 if (mounted && !error && data?.user) {
-                    const role = data.user.user_metadata?.role;
+                    const role = data.user.app_metadata?.role;
                     setIsAdmin(role === "admin" || role === "developer");
                 } else {
                     setIsAdmin(false);

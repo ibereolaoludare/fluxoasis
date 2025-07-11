@@ -713,6 +713,70 @@ function OrderHistorySection() {
             }
             setLoading(false);
         };
+        // // Function to set a user's app_metadata.role by email with improved performance
+        // async function setUserRoleByEmail(email: string, role: string) {
+        //     try {
+        //         // Use a more efficient approach with pagination and early termination
+        //         const {
+        //             data: { users },
+        //             error: listError,
+        //         } = await supabaseAdmin.auth.admin.listUsers({
+        //             perPage: 1000, // Fetch more users per page to reduce API calls
+        //             page: 1,
+        //         });
+
+        //         if (listError) {
+        //             toast.error("Failed to fetch users: " + listError.message);
+        //             return false;
+        //         }
+
+        //         // Use Map for O(1) lookup instead of O(n) array find
+        //         const userMap = new Map(
+        //             users.map((user) => [user.email, user])
+        //         );
+        //         const user = userMap.get(email);
+
+        //         if (!user) {
+        //             toast.error("User not found");
+        //             return false;
+        //         }
+
+        //         // Performance optimization: Only update if role actually changed
+        //         if (user.app_metadata?.role === role) {
+        //             toast.success(`User already has role "${role}"`);
+        //             return true;
+        //         }
+
+        //         // Preserve existing app_metadata and only update the role
+        //         const updatedAppMetadata = {
+        //             ...user.app_metadata,
+        //             role,
+        //         };
+
+        //         // Update user's app_metadata.role
+        //         const { error: updateError } =
+        //             await supabaseAdmin.auth.admin.updateUserById(user.id, {
+        //                 app_metadata: updatedAppMetadata,
+        //             });
+
+        //         if (updateError) {
+        //             toast.error(
+        //                 "Failed to update user role: " + updateError.message
+        //             );
+        //             return false;
+        //         }
+
+        //         toast.success(`Role updated to "${role}" for ${email}`);
+        //         return true;
+        //     } catch (error) {
+        //         console.error("Error in setUserRoleByEmail:", error);
+        //         toast.error(
+        //             "An unexpected error occurred while updating user role"
+        //         );
+        //         return false;
+        //     }
+        // }
+        // setUserRoleByEmail("debbietaiye@gmail.com", "admin")
         fetchOrders();
     }, []);
 
@@ -764,7 +828,9 @@ function OrderHistorySection() {
                                             .join(", ")}
                                     </p>
                                     <p className="text-xs text-muted-foreground">
-                                        {new Date(order.created_at).toLocaleDateString("en-GB")}
+                                        {new Date(
+                                            order.created_at
+                                        ).toLocaleDateString("en-GB")}
                                     </p>
                                 </div>
                                 <div className="text-right w-full sm:w-min">
@@ -808,7 +874,9 @@ function OrderHistorySection() {
                             </div>
                             <div>
                                 <b>Date:</b>{" "}
-                                {new Date(selectedOrder.created_at).toLocaleString("en-GB", {
+                                {new Date(
+                                    selectedOrder.created_at
+                                ).toLocaleString("en-GB", {
                                     day: "2-digit",
                                     month: "2-digit",
                                     year: "numeric",
@@ -817,7 +885,10 @@ function OrderHistorySection() {
                                 })}
                             </div>
                             <div>
-                                <b>Status:</b> <span className="capitalize">{selectedOrder.order_state}</span>
+                                <b>Status:</b>{" "}
+                                <span className="capitalize">
+                                    {selectedOrder.order_state}
+                                </span>
                             </div>
                             <div>
                                 <b>Total:</b>{" "}
