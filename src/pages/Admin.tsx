@@ -11,7 +11,7 @@ import {
 } from "@phosphor-icons/react";
 import { Link, useSearchParams } from "wouter";
 import Header from "@/components/ui/header";
-import { supabase, supabaseAdmin } from "@/supabase";
+import { supabase } from "@/supabase";
 import { navigate } from "wouter/use-browser-location";
 import { Bar } from "react-chartjs-2";
 import {
@@ -81,6 +81,28 @@ ChartJS.register(
     Legend
 );
 
+// Helper function to fetch user data securely via edge function
+// Helper function to fetch multiple users securely via edge function
+const fetchUsersData = async (userIds: string[]) => {
+    try {
+        const { data, error } = await supabase.functions.invoke(
+            "get-user-by-id",
+            {
+                body: { userIds },
+            }
+        );
+
+        if (error) {
+            throw new Error(error.message || "Failed to fetch users");
+        }
+
+        return data.users || {};
+    } catch (err: any) {
+        console.error("Failed to fetch users data:", err);
+        return {};
+    }
+};
+
 // Placeholder admin section components
 function DashboardSection() {
     const [range, setRange] = useState<"daily" | "monthly" | "yearly" | "all">(
@@ -120,19 +142,21 @@ function DashboardSection() {
                 const userIds = Array.from(
                     new Set(recent.map((o) => o.user_id))
                 );
-                let usersMap: Record<string, any> = {};
-                for (const userId of userIds) {
-                    try {
-                        const { data, error } =
-                            await supabaseAdmin.auth.admin.getUserById(userId);
-                        if (data?.user) {
+
+                try {
+                    const usersData = await fetchUsersData(userIds);
+                    let usersMap: Record<string, any> = {};
+
+                    for (const userId of userIds) {
+                        const user = usersData[userId];
+                        if (user) {
                             usersMap[userId] = {
                                 name:
-                                    data.user.user_metadata?.name ||
-                                    data.user.email?.split("@")[0] ||
+                                    user.user_metadata?.name ||
+                                    user.email?.split("@")[0] ||
                                     "User",
-                                email: data.user.email,
-                                phone: data.user.user_metadata?.phone || "",
+                                email: user.email,
+                                phone: user.user_metadata?.phone || "",
                             };
                         } else {
                             usersMap[userId] = {
@@ -140,20 +164,12 @@ function DashboardSection() {
                                 email: "",
                                 phone: "",
                             };
-                            if (error) setUserError(`Error: ${error.message}`);
                         }
-                    } catch (err: any) {
-                        usersMap[userId] = {
-                            name: "Unknown",
-                            email: "",
-                            phone: "",
-                        };
-                        setUserError(
-                            `Error fetching user info: ${err.message}`
-                        );
                     }
+                    setUsers(usersMap);
+                } catch (err: any) {
+                    setUserError(`Error fetching user info: ${err.message}`);
                 }
-                setUsers(usersMap);
             }
         })();
     }, []);
@@ -1070,20 +1086,21 @@ function OrdersSection() {
             const userIds = Array.from(
                 new Set((ordersData || []).map((o: any) => o.user_id))
             );
-            // Fetch user info for each user_id
-            let usersMap: Record<string, any> = {};
-            for (const userId of userIds) {
-                try {
-                    const { data, error } =
-                        await supabaseAdmin.auth.admin.getUserById(userId);
-                    if (data?.user) {
+            // Fetch user info for all users at once
+            try {
+                const usersData = await fetchUsersData(userIds);
+                let usersMap: Record<string, any> = {};
+
+                for (const userId of userIds) {
+                    const user = usersData[userId];
+                    if (user) {
                         usersMap[userId] = {
                             name:
-                                data.user.user_metadata?.name ||
-                                data.user.email?.split("@")[0] ||
+                                user.user_metadata?.name ||
+                                user.email?.split("@")[0] ||
                                 "User",
-                            email: data.user.email,
-                            phone: data.user.user_metadata?.phone || "",
+                            email: user.email,
+                            phone: user.user_metadata?.phone || "",
                         };
                     } else {
                         usersMap[userId] = {
@@ -1091,18 +1108,12 @@ function OrdersSection() {
                             email: "",
                             phone: "",
                         };
-                        if (error) setUserError(`Error: ${error.message}`);
                     }
-                } catch (err: any) {
-                    usersMap[userId] = {
-                        name: "Unknown",
-                        email: "",
-                        phone: "",
-                    };
-                    setUserError(`Error fetching user info: ${err.message}`);
                 }
+                setUsers(usersMap);
+            } catch (err: any) {
+                setUserError(`Error fetching user info: ${err.message}`);
             }
-            setUsers(usersMap);
             setLoading(false);
         };
         fetchOrdersAndUsers();
