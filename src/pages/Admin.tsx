@@ -445,6 +445,7 @@ function ProductsSection() {
     const [editProduct, setEditProduct] = useState<Tables<"products"> | null>(
         null
     );
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     // Fetch products from Supabase
     useEffect(() => {
@@ -463,6 +464,7 @@ function ProductsSection() {
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
         setFormError(null);
+        setIsSubmitting(true);
         if (
             !form.name ||
             !form.price ||
@@ -471,6 +473,7 @@ function ProductsSection() {
         ) {
             setFormError("All fields are required, including an image.");
             toast.error("All fields are required, including an image.");
+            setIsSubmitting(false);
             return;
         }
         if (editProduct) {
@@ -526,14 +529,17 @@ function ProductsSection() {
                     image: "",
                 });
                 setImageFile(null);
+                setIsSubmitting(false);
                 toast.success("Product updated successfully.");
             } else if (!imageUpdated && imageFile) {
                 setFormError(
                     "Failed to update product image. Please try again."
                 );
+                setIsSubmitting(false);
             } else {
                 setFormError("Failed to update product. Please try again.");
                 toast.error("Failed to update product. Please try again.");
+                setIsSubmitting(false);
             }
             return;
         }
@@ -590,10 +596,12 @@ function ProductsSection() {
                 image: "",
             });
             setImageFile(null);
+            setIsSubmitting(false);
             toast.success("Product created successfully.");
         } else {
             setFormError("Failed to create product. Please try again.");
             toast.error("Failed to create product. Please try again.");
+            setIsSubmitting(false);
         }
     }
 
@@ -1046,9 +1054,23 @@ function ProductsSection() {
                             </DialogClose>
                             <Button
                                 type="submit"
+                                disabled={isSubmitting}
                                 className="rounded-full shadow-none !p-6 bg-foreground hover:bg-foreground/90 hover:text-background">
-                                <CheckIcon />
-                                {editProduct ? "Save Changes" : "Create"}
+                                {isSubmitting ? (
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-4 h-4 border-2 border-background border-t-transparent rounded-full animate-spin"></div>
+                                        {editProduct
+                                            ? "Saving..."
+                                            : "Creating..."}
+                                    </div>
+                                ) : (
+                                    <>
+                                        <CheckIcon />
+                                        {editProduct
+                                            ? "Save Changes"
+                                            : "Create"}
+                                    </>
+                                )}
                             </Button>
                         </DialogFooter>
                     </form>
@@ -1316,10 +1338,7 @@ function OrdersSection() {
                             <div>
                                 <b>Total:</b>{" "}
                                 {selectedOrder.order?.total
-                                    ? Intl.NumberFormat("en-US", {
-                                          style: "currency",
-                                          currency: "USD",
-                                      }).format(selectedOrder.order.total)
+                                    ? formatPrice(selectedOrder.order?.total)
                                     : "-"}
                             </div>
                             <div className="mt-2">
